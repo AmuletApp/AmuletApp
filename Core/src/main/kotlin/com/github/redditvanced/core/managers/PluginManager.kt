@@ -116,7 +116,7 @@ object PluginManager {
 	 */
 	fun startPlugin(name: String) {
 		val plugin = plugins[name]
-			?: throw IllegalStateException("Plugin $name not loaded")
+			?: throw IllegalStateException("Plugin $name is not loaded")
 
 		try {
 			plugin.isStarted = true

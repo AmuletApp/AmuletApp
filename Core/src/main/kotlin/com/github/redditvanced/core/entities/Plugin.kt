@@ -1,6 +1,7 @@
 package com.github.redditvanced.core.entities
 
 import android.content.res.Resources
+import androidx.annotation.CallSuper
 import com.github.redditvanced.core.managers.PluginManager
 import com.github.redditvanced.core.patcher.Patcher
 import com.github.redditvanced.core.util.Logger
@@ -62,7 +63,10 @@ open class Plugin(
 	/**
 	 * Called when your plugin is stopped
 	 */
-	open fun onStop() {}
+	@CallSuper
+	open fun onStop() {
+		patcher.unpatchAll()
+	}
 
 	/**
 	 * Called when your plugin is unloaded

@@ -9,7 +9,9 @@ import java.sql.Timestamp
 import kotlin.system.exitProcess
 
 sealed class Main {
-	private val logger = Logger("Core")
+	companion object {
+		val logger = Logger("Core")
+	}
 
 	private var preInitialized = false
 	private var initialized = false
@@ -97,7 +99,5 @@ sealed class Main {
 			Thread.sleep(4200) // Wait for toast to end
 			exitProcess(2)
 		}
-
-
 	}
 }
