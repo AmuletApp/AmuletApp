@@ -3,6 +3,7 @@ plugins {
 	id("maven-publish")
 	id("kotlin-android")
 	id("org.jetbrains.dokka")
+	kotlin("plugin.serialization") version "1.6.0"
 }
 
 fun getGitHash(): String {

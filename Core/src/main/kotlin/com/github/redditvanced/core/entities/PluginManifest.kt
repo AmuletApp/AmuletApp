@@ -2,7 +2,6 @@ package com.github.redditvanced.core.entities
 
 import kotlinx.serialization.Serializable
 
-@Suppress("PROVIDED_RUNTIME_TOO_LOW")
 @Serializable
 data class PluginManifest(
 	val name: String,

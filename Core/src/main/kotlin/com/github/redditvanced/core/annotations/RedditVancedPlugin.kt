@@ -1,4 +1,4 @@
-package com.github.redditvanced.core.entities
+package com.github.redditvanced.core.annotations
 
 /**
  * Annotates the entrypoint of a plugin, used by manifest.json generation.
