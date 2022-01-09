@@ -1,0 +1,11 @@
+.idea
+*.iml
+.gradle
+local.properties
+.DS_Store
+**/build
+/captures
+*.classpath
+*.project
+*org.eclipse.buildship.core.prefs
+.vscode
