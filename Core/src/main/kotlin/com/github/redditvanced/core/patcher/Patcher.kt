@@ -21,6 +21,8 @@ class Patcher(
 	 */
 	private val unpatches = mutableListOf<Unpatch>()
 
+	// TODO: make constructor/method hooks use the member hook, reduce code duplication
+
 	/**
 	 * Replaces a constructor of a class.
 	 * @param paramTypes parameters of the method. Useful for patching individual overloads
@@ -34,7 +36,7 @@ class Patcher(
 				try {
 					param.result = callback(param.thisObject as T, param)
 				} catch (th: Throwable) {
-					logger.error("Exception while replacing constructor of ${param.method.declaringClass}", th)
+					logger.error("Exception while instead-hooking constructor of ${param.method.declaringClass}", th)
 				}
 			}
 		})
@@ -53,13 +55,31 @@ class Patcher(
 				try {
 					param.result = callback(param.thisObject as T, param)
 				} catch (th: Throwable) {
-					logger.error("Exception while replacing ${param.method.declaringClass.name}.${param.method.name}", th)
+					logger.error("Exception while instead-hooking ${param.method.declaringClass.name}.${param.method.name}", th)
 				}
 			}
 		})
 
 	/**
-	 * Adds a [PreHook] to a constructor of a class.
+	 * Replaces a method/constructor of a class.
+	 * @param member Method or constructor to patch. see [Member]
+	 * @param callback callback for the patch
+	 * @return The [Runnable] object of the patch
+	 * @see [XC_MethodHook.beforeHookedMethod]
+	 */
+	inline fun instead(member: Member, crossinline callback: InsteadHookCallback<Any>): Unpatch =
+		patch(member, object : XC_MethodHook() {
+			override fun beforeHookedMethod(param: MethodHookParam) {
+				try {
+					param.result = callback(param.thisObject, param)
+				} catch (th: Throwable) {
+					logger.error("Exception while instead-hooking ${param.method.declaringClass.name}.${param.method.name}", th)
+				}
+			}
+		})
+
+	/**
+	 * Pre-hooks a constructor of a class.
 	 * @param paramTypes parameters of the constructor. Useful for patching individual overloads
 	 * @param callback callback for the patch
 	 * @return The [Runnable] object of the patch
@@ -77,7 +97,7 @@ class Patcher(
 		})
 
 	/**
-	 * Adds a [PreHook] to a method of a class.
+	 * Pre-hooks a method of a class.
 	 * @param methodName name of the method to patch
 	 * @param paramTypes parameters of the method. Useful for patching individual overloads
 	 * @param callback callback for the patch
@@ -96,7 +116,25 @@ class Patcher(
 		})
 
 	/**
-	 * Adds a [Hook] to a constructor of a class.
+	 * Pre-hooks a method/constructor of a class.
+	 * @param member Method or constructor to patch. see [Member]
+	 * @param callback callback for the patch
+	 * @return The [Runnable] object of the patch
+	 * @see [XC_MethodHook.beforeHookedMethod]
+	 */
+	inline fun before(member: Member, crossinline callback: HookCallback<Any>): Unpatch =
+		patch(member, object : XC_MethodHook() {
+			override fun beforeHookedMethod(param: MethodHookParam) {
+				try {
+					callback(param.thisObject, param)
+				} catch (th: Throwable) {
+					logger.error("Exception while pre-hooking ${param.method.declaringClass.name}.${param.method.name}", th)
+				}
+			}
+		})
+
+	/**
+	 * Post-hooks a constructor of a class.
 	 * @param paramTypes parameters of the constructor. Useful for patching individual overloads
 	 * @param callback callback for the patch
 	 * @return the [Runnable] object of the patch
@@ -114,7 +152,7 @@ class Patcher(
 		})
 
 	/**
-	 * Adds a [Hook] to a method of a class.
+	 * Post-hooks a method of a class.
 	 * @param methodName name of the method to patch
 	 * @param paramTypes parameters of the method. Useful for patching individual overloads
 	 * @param callback callback for the patch
@@ -126,6 +164,24 @@ class Patcher(
 			override fun afterHookedMethod(param: MethodHookParam) {
 				try {
 					callback(param.thisObject as T, param)
+				} catch (th: Throwable) {
+					logger.error("Exception while hooking ${param.method.declaringClass.name}.${param.method.name}", th)
+				}
+			}
+		})
+
+	/**
+	 * Post-hooks a method of a class.
+	 * @param member Method or constructor to patch. see [Member]
+	 * @param callback callback for the patch
+	 * @return the [Runnable] object of the patch
+	 * @see [XC_MethodHook.afterHookedMethod]
+	 */
+	inline fun after(member: Member, crossinline callback: HookCallback<Any>): Unpatch =
+		patch(member, object : XC_MethodHook() {
+			override fun afterHookedMethod(param: MethodHookParam) {
+				try {
+					callback(param.thisObject, param)
 				} catch (th: Throwable) {
 					logger.error("Exception while hooking ${param.method.declaringClass.name}.${param.method.name}", th)
 				}
