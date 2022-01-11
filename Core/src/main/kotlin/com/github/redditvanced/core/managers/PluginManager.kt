@@ -5,7 +5,7 @@ import android.content.res.Resources
 import com.github.redditvanced.core.Constants.Paths
 import com.github.redditvanced.core.coreplugins.CorePlugins
 import com.github.redditvanced.core.entities.Plugin
-import com.github.redditvanced.core.entities.PluginManifest
+import com.github.redditvanced.core.models.PluginManifest
 import com.github.redditvanced.core.util.Logger
 import com.github.redditvanced.core.util.Utils
 import dalvik.system.PathClassLoader

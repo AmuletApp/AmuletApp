@@ -3,6 +3,7 @@ package com.github.redditvanced.core.entities
 import android.content.res.Resources
 import androidx.annotation.CallSuper
 import com.github.redditvanced.core.managers.PluginManager
+import com.github.redditvanced.core.models.PluginManifest
 import com.github.redditvanced.core.patcher.Patcher
 import com.github.redditvanced.core.util.Logger
 

@@ -1,4 +1,4 @@
-package com.github.redditvanced.core.entities
+package com.github.redditvanced.core.models
 
 import kotlinx.serialization.Serializable
 
