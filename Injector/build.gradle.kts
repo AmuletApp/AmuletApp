@@ -1,6 +1,7 @@
 plugins {
 	id("com.android.library")
-	id("kotlin-android")
+	kotlin("android") version "1.6.10"
+	kotlin("plugin.serialization") version "1.6.10"
 }
 
 android {
@@ -39,8 +40,7 @@ dependencies {
 //	discord("com.discord:discord:${findProperty("discord_version")}")
 //	implementation("androidx.appcompat:appcompat:1.3.1")
 
-	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
-	// TODO: migrate away from aliucord
+//	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
 	implementation("com.github.Aliucord:pine:83f67b2cdb")
 	compileOnly(files("../.assets/com.reddit.frontpage-dex2jar.jar"))
 }

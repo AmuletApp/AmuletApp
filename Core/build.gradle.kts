@@ -1,9 +1,9 @@
 plugins {
 	id("com.android.library")
 	id("maven-publish")
-	id("kotlin-android")
 	id("org.jetbrains.dokka")
-	kotlin("plugin.serialization") version "1.6.0"
+	kotlin("android") version "1.6.10"
+	kotlin("plugin.serialization") version "1.6.10"
 }
 
 fun getGitHash(): String {
@@ -53,10 +53,11 @@ android {
 }
 
 dependencies {
-//    api("androidx.appcompat:appcompat:1.3.1")
-//    api("androidx.constraintlayout:constraintlayout:2.1.1")
-	api("com.google.android.material:material:1.4.0")
+//	api("androidx.appcompat:appcompat:1.3.1")
+//	api("androidx.constraintlayout:constraintlayout:2.1.1")
+//	api("com.google.android.material:material:1.4.0")
 	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
+//	implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.3.2")
 
 //    discord("com.discord:discord:${findProperty("discord_version")}")
 	api(files("../.assets/pine.jar"))
