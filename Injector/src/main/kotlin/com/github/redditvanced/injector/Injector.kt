@@ -1,10 +1,15 @@
 package com.github.redditvanced.injector
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.*
 import android.util.Log
 import android.widget.Toast
+import androidx.fragment.app.Fragment
+import com.reddit.frontpage.main.MainActivity
 import dalvik.system.BaseDexClassLoader
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
@@ -21,14 +26,14 @@ class Injector {
 	companion object {
 		const val LOG_TAG = "Injector"
 		private const val PROJECT_NAME = "RedditVanced"
+
 		// TODO: use json settings instead
 		private const val USE_LOCAL_CORE_KEY = "RV_useCustomCore"
 		private val BASE_DIRECTORY = File(Environment.getExternalStorageDirectory().absolutePath, PROJECT_NAME)
 
 		private var baseActivityUnhook: MethodHook.Unhook? = null
 		fun init(activity: BaseActivity) {
-			// TODO: check for read/write to storage permissions here
-			// Prompt & restart app once granted
+			checkPermissions(activity)
 
 			PineConfig.debug = File(BASE_DIRECTORY, ".pine_debug").exists()
 			PineConfig.debuggable = File(BASE_DIRECTORY, ".debuggable").exists()
@@ -156,6 +161,44 @@ class Injector {
 				}
 			}
 			return true
+		}
+
+		/**
+		 * Check and request write storage permissions
+		 * TODO: test if this works
+		 */
+		private fun checkPermissions(activity: BaseActivity): Boolean {
+			val perm = Manifest.permission.WRITE_EXTERNAL_STORAGE
+
+			// if (ContextCompat.a(activity, perm) == PackageManager.PERMISSION_GRANTED)
+			// 	return
+			if (activity.checkSelfPermission(perm) == PackageManager.PERMISSION_GRANTED) return true
+
+			Pine.hook(
+				Fragment::class.java.getDeclaredMethod("onRequestPermissionsResult", Integer.TYPE, Array<String>::class.java, Integer.TYPE),
+				object : MethodHook() {
+					override fun beforeCall(callFrame: Pine.CallFrame) {
+						val requestCode = callFrame.args[0] as Int
+						val grantResults = callFrame.args[2] as Array<*>
+
+						if (requestCode == 45987) {
+							if (grantResults.contains(PackageManager.PERMISSION_DENIED))
+								Toast.makeText(activity, "You have to grant storage permissions to use $PROJECT_NAME", Toast.LENGTH_LONG).show()
+							else {
+								Log.i(LOG_TAG, "MANAGE_EXTERNAL_STORAGE granted, restarting $PROJECT_NAME")
+								val intent = Intent(activity, MainActivity::class.java)
+								intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+								activity.startActivity(intent)
+								Runtime.getRuntime().exit(0)
+							}
+							callFrame.result = null
+						}
+					}
+				})
+
+			activity.requestPermissions(arrayOf(perm), 45987)
+
+			return false
 		}
 	}
 }

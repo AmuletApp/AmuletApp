@@ -16,6 +16,8 @@ public class AppActivity$a extends gg1.a {
 		Injector.Companion.init(activity);
 	}
 
+	// TODO: investigate MainActivity, its empty
+
 	@Override
 	public void onActivityDestroyed(Activity activity) {
 		if ((activity instanceof LightboxActivity) || (activity instanceof StreamActivity)) {

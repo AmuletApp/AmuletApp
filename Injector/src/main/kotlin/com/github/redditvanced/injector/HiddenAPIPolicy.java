@@ -7,8 +7,6 @@ import java.lang.reflect.Method;
 import java.util.Objects;
 
 public class HiddenAPIPolicy {
-	private HiddenAPIPolicy() {}
-
 	/**
 	 * Disables the Android Hidden API by adding an exemption for everything ("L", the prefix of all class references, e.g. Ljava/lang/String)
 	 * Works by getting reflection methods through reflection,
