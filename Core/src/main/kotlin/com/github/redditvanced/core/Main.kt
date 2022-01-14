@@ -56,10 +56,10 @@ sealed class Main {
 
 			kotlin.concurrent.thread {
 				Looper.prepare()
-				var crashedPlugin: String? = null
 
 				// Find the plugin that caused the crash (if any)
-				for (element in throwable.stackTrace) {
+				var crashedPlugin: String? = null
+				loop@ for (element in throwable.stackTrace) {
 					for ((loader, plugin) in PluginManager.classLoaders.entries) {
 						val loadedClass = try {
 							loader.loadClass(element.className)
@@ -73,10 +73,7 @@ sealed class Main {
 						}
 
 						crashedPlugin = plugin.manifest.name
-						break
-					}
-					if (crashedPlugin != null) {
-						break
+						break@loop
 					}
 				}
 
