@@ -54,6 +54,9 @@ object PluginManager {
 		}
 	}
 
+	private val cAssetManager = AssetManager::class.java
+	private val mAddAssetPath = cAssetManager.getMethod("addAssetPath", String::class.java)
+
 	/**
 	 * Load a plugin by its name (without extension)
 	 * This unsafely overrides any current plugin with the same name
@@ -86,9 +89,8 @@ object PluginManager {
 
 			if (manifest.loadResources) {
 				// based on https://stackoverflow.com/questions/7483568/dynamic-resource-loading-from-other-apk
-				val assets = AssetManager::class.java.newInstance()
-				val addAssetPath = AssetManager::class.java.getMethod("addAssetPath", String::class.java)
-				addAssetPath.invoke(assets, path)
+				val assets = cAssetManager.newInstance()
+				mAddAssetPath.invoke(assets, path)
 				plugin.resources = Resources(assets, ctx.resources.displayMetrics, ctx.resources.configuration)
 			}
 
