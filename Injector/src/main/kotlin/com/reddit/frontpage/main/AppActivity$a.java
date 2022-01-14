@@ -13,7 +13,7 @@ import com.reddit.screen.media.streaming.StreamActivity;
 @SuppressLint("SourceLockedOrientationActivity")
 public class AppActivity$a extends gg1.a {
 	public AppActivity$a(MainActivity activity) {
-		Injector.Companion.init(activity);
+		Injector.INSTANCE.init(activity);
 	}
 
 	// TODO: investigate MainActivity, its empty
