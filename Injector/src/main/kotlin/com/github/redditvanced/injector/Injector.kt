@@ -6,7 +6,6 @@ import android.os.*
 import android.util.Log
 import android.widget.Toast
 import dalvik.system.BaseDexClassLoader
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import top.canyie.pine.Pine
@@ -18,16 +17,19 @@ import java.util.zip.ZipFile
 typealias BaseActivity = com.reddit.frontpage.a
 typealias FrontpageSettings = xw.c
 
-@ExperimentalSerializationApi
 class Injector {
 	companion object {
 		const val LOG_TAG = "Injector"
 		private const val PROJECT_NAME = "RedditVanced"
+		// TODO: use json settings instead
 		private const val USE_LOCAL_CORE_KEY = "RV_useCustomCore"
 		private val BASE_DIRECTORY = File(Environment.getExternalStorageDirectory().absolutePath, PROJECT_NAME)
 
 		private var baseActivityUnhook: MethodHook.Unhook? = null
 		fun init(activity: BaseActivity) {
+			// TODO: check for read/write to storage permissions here
+			// Prompt & restart app once granted
+
 			PineConfig.debug = File(BASE_DIRECTORY, ".pine_debug").exists()
 			PineConfig.debuggable = File(BASE_DIRECTORY, ".debuggable").exists()
 			Log.d(LOG_TAG, "Debuggable: ${PineConfig.debuggable}")
@@ -39,25 +41,24 @@ class Injector {
 			// Pine's disableHiddenApiPolicy crashes according to Juby
 			HiddenAPIPolicy.disableHiddenApiPolicy()
 
+			Log.i(LOG_TAG, "Initializing $PROJECT_NAME...")
 			try {
 				// baseActivityUnhook = Pine.hook(
 				// 	BaseActivity::class.java.getDeclaredMethod("onCreate", Bundle::class.java),
 				// 	object : MethodHook() {
 				// 		override fun beforeCall(callFrame: Pine.CallFrame) {
-				// 			initAliucord(callFrame.thisObject as BaseActivity)
+				// 			initCore(callFrame.thisObject as BaseActivity)
 				// 			baseActivityUnhook?.unhook()
 				// 			baseActivityUnhook = null
 				// 		}
 				// 	})
-				initAliucord(activity)
+				initCore(activity)
 			} catch (t: Throwable) {
-				Log.e(LOG_TAG, "Failed to initialize Aliucord", t)
+				Log.e(LOG_TAG, "Failed to initialize $PROJECT_NAME", t)
 			}
 		}
 
-		// TODO: use proper appactivity
-		fun initAliucord(activity: BaseActivity) {
-			Log.i(LOG_TAG, "Initializing Aliucord...")
+		private fun initCore(activity: BaseActivity) {
 			if (!pruneArtProfile(activity))
 				Log.w(LOG_TAG, "Failed to prune art profile")
 
@@ -101,17 +102,15 @@ class Injector {
 					}
 				}
 
-				Log.d(LOG_TAG, "Adding Aliucord to the classpath...")
+				Log.d(LOG_TAG, "Adding $PROJECT_NAME to the classpath...")
 				addDexToClasspath(cachedCoreFile, activity.classLoader)
-				Log.d(LOG_TAG, "Successfully added Aliucord to the classpath")
+				Log.d(LOG_TAG, "Successfully added $PROJECT_NAME to the classpath")
 
-				val c = Class.forName("com.aliucord.Main")
-				val preInit = c.getDeclaredMethod("preInit", BaseActivity::class.java)
+				val c = Class.forName("com.github.redditvanced.core.Main")
 				val init = c.getDeclaredMethod("init", BaseActivity::class.java)
-				Log.d(LOG_TAG, "Invoking main Aliucord entry point...")
-				preInit.invoke(null, activity)
+				Log.d(LOG_TAG, "Invoking main $PROJECT_NAME entry point...")
 				init.invoke(null, activity)
-				Log.d(LOG_TAG, "Finished initializing Aliucord")
+				Log.d(LOG_TAG, "Finished initializing $PROJECT_NAME")
 			} catch (t: Throwable) {
 				// Delete file so it is reinstalled the next time
 				cachedCoreFile.delete()

@@ -104,5 +104,4 @@ object Utils {
 		// TODO: app activity patch
 		// TODO: app context patch
 	}
-
 }

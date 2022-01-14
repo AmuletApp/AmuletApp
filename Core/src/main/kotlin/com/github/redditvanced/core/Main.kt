@@ -2,8 +2,7 @@ package com.github.redditvanced.core
 
 import android.os.Looper
 import com.github.redditvanced.core.managers.PluginManager
-import com.github.redditvanced.core.util.Logger
-import com.github.redditvanced.core.util.Utils
+import com.github.redditvanced.core.util.*
 import java.io.*
 import java.sql.Timestamp
 import kotlin.system.exitProcess
@@ -11,41 +10,25 @@ import kotlin.system.exitProcess
 sealed class Main {
 	companion object {
 		val logger = Logger("Core")
-	}
-
-	private var preInitialized = false
-	private var initialized = false
-
-	fun preInit() {
-		logger.info("preInit")
-		if (preInitialized) return
-		preInitialized = true
-
-		// TODO: app activity from injector
-		// Utils.appActivity = activity
-
-		Utils.init()
+		private var initialized = false
 	}
 
 	/**
 	 * Init hook called by the Injector
 	 */
-	fun init() {
+	@Suppress("unused")
+	fun init(activity: BaseActivity) {
+		logger.info("Main#init called")
+
 		if (initialized) return
 		initialized = true
 
-		// TODO: app activity from injector
-		// Utils.appActivity = activity
+		Utils.appActivity = activity
+		Utils.init()
 
-		// TODO: grant permissions before this
-		try {
-			File(Constants.Paths.PLUGINS).mkdirs()
-			File(Constants.Paths.THEMES).mkdir()
-			File(Constants.Paths.CRASHLOGS).mkdir()
-		} catch (t: Throwable) {
-			logger.errorToast("Missing write permissions! Aborting load...", t)
-			return
-		}
+		File(Constants.Paths.PLUGINS).mkdirs()
+		File(Constants.Paths.THEMES).mkdir()
+		File(Constants.Paths.CRASHLOGS).mkdir()
 
 		// Handle crashes
 		Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
