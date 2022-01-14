@@ -96,5 +96,9 @@ sealed class Main {
 			Thread.sleep(4200) // Wait for toast to end
 			exitProcess(2)
 		}
+
+		// TODO: load core settings
+		PluginManager.loadAllPlugins()
+		PluginManager.startAllPlugins()
 	}
 }

@@ -59,6 +59,7 @@ object PluginManager {
 	 * This unsafely overrides any current plugin with the same name
 	 * @return Plugin load successful
 	 */
+	@Suppress("DEPRECATION")
 	private fun loadPlugin(name: String): Boolean {
 		logger.info("Loading plugin $name")
 		val path = "${Paths.PLUGINS}/$name/${Paths.PLUGIN_EXT}"
@@ -104,17 +105,18 @@ object PluginManager {
 	/**
 	 * Start all currently loaded and enabled plugins
 	 */
-	fun startPlugins() {
+	fun startAllPlugins() {
 		plugins.keys
 			.filter(PluginManager::isPluginEnabled)
 			.forEach(PluginManager::startPlugin)
 	}
 
 	/**
-	 * Starts a single plugin
+	 * Starts a single loaded plugin (overrides settings)
 	 * @throws IllegalStateException If plugin not loaded
 	 */
 	fun startPlugin(name: String) {
+		logger.info("Starting plugin $name")
 		val plugin = plugins[name]
 			?: throw IllegalStateException("Plugin $name is not loaded")
 
@@ -122,8 +124,79 @@ object PluginManager {
 			plugin.isStarted = true
 			plugin.onStart()
 		} catch (t: Throwable) {
-			plugin.logger.error(t)
+			plugin.logger.error("Error while starting plugin", t)
 		}
+	}
+
+	/**
+	 * Stops a single loaded plugin (overrides settings)
+	 * @throws IllegalStateException If plugin not loaded
+	 */
+	fun stopPlugin(name: String) {
+		logger.info("Stopping plugin $name")
+		val plugin = plugins[name]
+			?: throw IllegalStateException("Plugin $name is not loaded")
+		if (!plugin.isStarted) return
+
+		try {
+			plugin.isStarted = false
+			plugin.onStop()
+		} catch (t: Throwable) {
+			plugin.logger.error("Error while stopping plugin", t)
+		}
+	}
+
+	/**
+	 * Unload a plugin (stop, remove from plugins, remove classloader)
+	 * @param name Plugin name
+	 */
+	fun unloadPlugin(name: String) {
+		logger.info("Unloading plugin $name")
+		val plugin = plugins[name]
+			?: throw IllegalStateException("Plugin $name is not loaded")
+
+		if (plugin.isStarted)
+			stopPlugin(name)
+
+		try {
+			plugin.onUnload()
+			plugins.remove(name)
+
+			val entry = classLoaders.entries.find { it.value.manifest.name == name }
+				?: throw IllegalStateException("Loaded plugin $name is missing a class loader")
+			classLoaders.remove(entry.key)
+		} catch (t: Throwable) {
+			logger.error("Error while unloading plugin $name")
+		}
+	}
+
+	/**
+	 * Enables a plugin in settings & starts it if not already started.
+	 * @param name Plugin name
+	 */
+	fun enablePlugin(name: String) {
+		if (isPluginEnabled(name)) return
+		// TODO: set setting
+		startPlugin(name)
+	}
+
+	/**
+	 * Disables a plugin in settings & stops it if not already stopped.
+	 * @param name Plugin name
+	 */
+	fun disablePlugin(name: String) {
+		if (!isPluginEnabled(name)) return
+		// TODO: set setting
+		stopPlugin(name)
+	}
+
+	/**
+	 * Toggles a plugin.
+	 * @param name Plugin name
+	 */
+	fun togglePlugin(name: String) {
+		if (isPluginEnabled(name)) disablePlugin(name)
+		else enablePlugin(name)
 	}
 
 	/**
