@@ -2,6 +2,7 @@ package com.github.redditvanced.core
 
 import android.os.Looper
 import com.github.redditvanced.core.managers.PluginManager
+import com.github.redditvanced.core.patcher.Patcher
 import com.github.redditvanced.core.util.*
 import java.io.*
 import java.sql.Timestamp
@@ -10,6 +11,7 @@ import kotlin.system.exitProcess
 sealed class Main {
 	companion object {
 		val logger = Logger("Core")
+		val patcher = Patcher(logger)
 		private var initialized = false
 	}
 

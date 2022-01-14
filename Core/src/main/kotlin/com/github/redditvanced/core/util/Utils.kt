@@ -1,14 +1,13 @@
 package com.github.redditvanced.core.util
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Handler
-import android.os.Looper
+import android.os.*
 import android.widget.Toast
-import java.util.HashMap
+import com.github.redditvanced.core.Main
+import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -101,7 +100,9 @@ object Utils {
 	 * Initialize patches
 	 */
 	fun init() {
-		// TODO: app activity patch
-		// TODO: app context patch
+		Main.patcher.before<BaseActivity>("onCreate", Bundle::class.java) {
+			appActivity = this
+			appContext = this.applicationContext
+		}
 	}
 }
