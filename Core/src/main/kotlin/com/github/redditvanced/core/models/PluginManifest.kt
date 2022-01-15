@@ -1,8 +1,8 @@
 package com.github.redditvanced.core.models
 
-import kotlinx.serialization.Serializable
-
-@Serializable
+/**
+ * Serializable json class for the manifest.json located in each plugin
+ */
 data class PluginManifest(
 	val name: String,
 	val description: String,
@@ -13,7 +13,6 @@ data class PluginManifest(
 	val changelog: String,
 	val version: String,
 ) {
-	@Serializable
 	data class Author(
 		val name: String,
 		val discordId: Long?,

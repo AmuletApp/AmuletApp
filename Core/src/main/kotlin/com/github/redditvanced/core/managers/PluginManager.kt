@@ -2,6 +2,7 @@ package com.github.redditvanced.core.managers
 
 import android.content.res.AssetManager
 import android.content.res.Resources
+import com.beust.klaxon.Klaxon
 import com.github.redditvanced.core.Constants.Paths
 import com.github.redditvanced.core.coreplugins.CorePlugins
 import com.github.redditvanced.core.entities.Plugin
@@ -10,8 +11,6 @@ import com.github.redditvanced.core.util.Logger
 import com.github.redditvanced.core.util.Utils
 import dalvik.system.PathClassLoader
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromStream
 import java.io.File
 
 @Suppress("MemberVisibilityCanBePrivate")
@@ -78,7 +77,8 @@ object PluginManager {
 			}
 
 			val manifest = try {
-				Json.decodeFromStream<PluginManifest>(manifestStream)
+				Klaxon().parse<PluginManifest>(manifestStream)
+					?: throw IllegalStateException("Failed to parse plugin manifest")
 			} catch (t: SerializationException) {
 				logger.error("Invalid manifest for plugin $name", t)
 				return false

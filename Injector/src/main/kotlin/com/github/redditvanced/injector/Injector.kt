@@ -9,10 +9,9 @@ import android.os.*
 import android.util.Log
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.beust.klaxon.Klaxon
 import com.reddit.frontpage.main.MainActivity
 import dalvik.system.BaseDexClassLoader
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromStream
 import top.canyie.pine.Pine
 import top.canyie.pine.PineConfig
 import top.canyie.pine.callback.MethodHook
@@ -97,7 +96,8 @@ object Injector {
 
 				val zip = ZipFile(coreFile)
 				val manifestStream = zip.getInputStream(zip.getEntry("manifest.json"))
-				val manifest = Json.decodeFromStream<CoreManifest>(manifestStream)
+				val manifest = Klaxon().parse<CoreManifest>(manifestStream)
+					?: throw IllegalStateException("Failed to parse core manifest")
 				zip.close()
 				Log.d(LOG_TAG, "Retrieved supported Reddit version: ${manifest.redditVersionCode}")
 

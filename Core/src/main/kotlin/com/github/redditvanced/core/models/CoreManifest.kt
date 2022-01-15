@@ -1,8 +1,7 @@
-package com.github.redditvanced.injector
+package com.github.redditvanced.core.models
 
 /**
  * Serializable json class for the manifest.json found in the core build
- * TODO: move this + core's to a shared common lib w/ all the typealiases as well
  */
 data class CoreManifest(
 	/**
