@@ -1,4 +1,4 @@
-package com.github.redditvanced.core.models
+package com.github.redditvanced.common.models
 
 /**
  * Serializable json class for the manifest.json found in the core build

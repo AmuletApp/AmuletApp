@@ -30,5 +30,5 @@ Reddit version: v2021.47.0 (394342) (Installer will download automatically)
 - [Pine](https://github.com/canyie/pine) - Dynamic java method hook framework on ART
 - [Aliucord](https://github.com/Aliucord/Aliucord) - Discord Android app mod
 
-Most of the code was heavily based on Aliucord, almost entirely rewritten.\
-Used under the Open Software License, version 3.0. Copyright (c) 2021 Juby210 & Vendicated
+Code heavily inspired by Aliucord, although almost entirely rewritten.\
+Used under the Open Software License v3

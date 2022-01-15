@@ -1,8 +1,7 @@
-package com.github.redditvanced.injector
+package com.github.redditvanced.common.models
 
 /**
  * Serializable json class for core settings located in /RedditVanced/settings.json
- * TODO: move this + core's to a shared common lib w/ all the typealiases as well
  */
 data class CoreSettings(
 	/**

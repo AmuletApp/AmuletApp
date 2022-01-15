@@ -1,7 +1,7 @@
 package com.github.redditvanced.core.util
 
 import android.util.Log
-import com.github.redditvanced.core.Constants
+import com.github.redditvanced.common.Constants
 
 /**
  * Logger that will log to logcat

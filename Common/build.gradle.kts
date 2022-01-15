@@ -21,6 +21,7 @@ android {
 		sourceCompatibility = JavaVersion.VERSION_11
 		targetCompatibility = JavaVersion.VERSION_11
 	}
+
 	kotlinOptions {
 		jvmTarget = "11"
 		freeCompilerArgs = freeCompilerArgs +
@@ -29,17 +30,8 @@ android {
 			"-Xno-receiver-assertions" +
 			"-Xuse-experimental=kotlinx.serialization.ExperimentalSerializationApi"
 	}
-
-	buildFeatures {
-		viewBinding = true
-	}
 }
 
 dependencies {
-//	discord("com.discord:discord:${findProperty("discord_version")}")
-
-	implementation(project(":Common"))
-	implementation("com.beust:klaxon:5.5")
-	implementation("com.github.Aliucord:pine:83f67b2cdb")
 	compileOnly(files("../.assets/com.reddit.frontpage-dex2jar.jar"))
 }

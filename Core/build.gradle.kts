@@ -57,11 +57,11 @@ dependencies {
 //	api("androidx.constraintlayout:constraintlayout:2.1.1")
 //	api("com.google.android.material:material:1.4.0")
 
-//    discord("com.discord:discord:${findProperty("discord_version")}")
+	api(project(":Common"))
 	api(files("../.assets/pine.jar"))
-	compileOnly(files("../.assets/com.reddit.frontpage-dex2jar.jar"))
-
 	implementation("com.beust:klaxon:5.5")
+	compileOnly(files("../.assets/com.reddit.frontpage-dex2jar.jar"))
+//    discord("com.discord:discord:${findProperty("discord_version")}")
 }
 
 tasks.dokkaHtml.configure {

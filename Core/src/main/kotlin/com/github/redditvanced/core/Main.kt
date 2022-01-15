@@ -1,6 +1,8 @@
 package com.github.redditvanced.core
 
 import android.os.Looper
+import com.github.redditvanced.common.BaseActivity
+import com.github.redditvanced.common.Constants
 import com.github.redditvanced.core.managers.PluginManager
 import com.github.redditvanced.core.patcher.Patcher
 import com.github.redditvanced.core.util.*

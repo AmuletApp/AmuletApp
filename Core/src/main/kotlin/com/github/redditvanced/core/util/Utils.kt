@@ -6,13 +6,11 @@ import android.content.Intent
 import android.net.Uri
 import android.os.*
 import android.widget.Toast
+import com.github.redditvanced.common.BaseActivity
 import com.github.redditvanced.core.Main
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-
-typealias BaseActivity = com.reddit.frontpage.a
-typealias FrontpageSettings = xw.c
 
 @Suppress("unused")
 @SuppressLint("StaticFieldLeak") // This never happens as the patch always replaces it with the new value

@@ -1,4 +1,4 @@
-package com.github.redditvanced.core.models
+package com.github.redditvanced.common.models
 
 /**
  * Serializable json class for the data present at /data.json on the builds branch of the Github repo

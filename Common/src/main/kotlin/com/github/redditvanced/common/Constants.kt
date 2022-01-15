@@ -1,22 +1,20 @@
-package com.github.redditvanced.core
+package com.github.redditvanced.common
 
 import android.os.Environment
-import com.github.redditvanced.core.util.FrontpageSettings
 
 @Suppress("MemberVisibilityCanBePrivate", "unused")
-class Constants {
-	companion object {
-		const val PROJECT_NAME = "RedditVanced"
+object Constants {
+	const val PROJECT_NAME = "RedditVanced"
 
-		/**
-		 * Github repository homepage
-		 */
-		const val GITHUB = "https://github.com/$PROJECT_NAME/$PROJECT_NAME"
+	/**
+	 * Github repository homepage
+	 */
+	const val GITHUB = "https://github.com/$PROJECT_NAME/$PROJECT_NAME"
 
-		val APP_VERSION_CODE: Int = FrontpageSettings.i.appVersionCode
-		val APP_VERSION_NAME: String = FrontpageSettings.i.appVersionName
-	}
+	val APP_VERSION_CODE: Int = FrontpageSettings.i.appVersionCode
+	val APP_VERSION_NAME: String = FrontpageSettings.i.appVersionName
 
+	@Suppress("DEPRECATION")
 	object Paths {
 		/**
 		 * Reddit Vanced data path
@@ -43,10 +41,5 @@ class Constants {
 			const val THEME_DEV = 0L
 			const val PLUGIN_DEV = 0L
 		}
-	}
-
-	object Settings {
-		// TODO: delegates
-		const val CRASH_AUTO_DISABLE = "crashAutoDisable"
 	}
 }

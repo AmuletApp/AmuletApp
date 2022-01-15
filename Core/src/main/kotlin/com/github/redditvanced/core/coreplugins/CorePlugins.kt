@@ -1,7 +1,7 @@
 package com.github.redditvanced.core.coreplugins
 
 import com.github.redditvanced.core.entities.Plugin
-import com.github.redditvanced.core.models.PluginManifest
+import com.github.redditvanced.common.models.PluginManifest
 
 object CorePlugins {
 	/**

@@ -3,10 +3,10 @@ package com.github.redditvanced.core.managers
 import android.content.res.AssetManager
 import android.content.res.Resources
 import com.beust.klaxon.Klaxon
-import com.github.redditvanced.core.Constants.Paths
+import com.github.redditvanced.common.Constants.Paths
 import com.github.redditvanced.core.coreplugins.CorePlugins
 import com.github.redditvanced.core.entities.Plugin
-import com.github.redditvanced.core.models.PluginManifest
+import com.github.redditvanced.common.models.PluginManifest
 import com.github.redditvanced.core.util.Logger
 import com.github.redditvanced.core.util.Utils
 import dalvik.system.PathClassLoader

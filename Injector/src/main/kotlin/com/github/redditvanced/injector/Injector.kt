@@ -10,6 +10,9 @@ import android.util.Log
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.beust.klaxon.Klaxon
+import com.github.redditvanced.common.*
+import com.github.redditvanced.common.Constants.PROJECT_NAME
+import com.github.redditvanced.common.models.CoreManifest
 import com.reddit.frontpage.main.MainActivity
 import dalvik.system.BaseDexClassLoader
 import top.canyie.pine.Pine
@@ -18,23 +21,18 @@ import top.canyie.pine.callback.MethodHook
 import java.io.*
 import java.util.zip.ZipFile
 
-typealias BaseActivity = com.reddit.frontpage.a
-typealias FrontpageSettings = xw.c
-
 object Injector {
 	const val LOG_TAG = "Injector"
-	private const val PROJECT_NAME = "RedditVanced"
 
 	// TODO: use json settings instead
 	private const val USE_LOCAL_CORE_KEY = "RV_useCustomCore"
-	private val BASE_DIRECTORY = File(Environment.getExternalStorageDirectory().absolutePath, PROJECT_NAME)
 
-	private var baseActivityUnhook: MethodHook.Unhook? = null
+	// private var baseActivityUnhook: MethodHook.Unhook? = null
 	fun init(activity: BaseActivity) {
 		checkPermissions(activity)
 
-		PineConfig.debug = File(BASE_DIRECTORY, ".pine_debug").exists()
-		PineConfig.debuggable = File(BASE_DIRECTORY, ".debuggable").exists()
+		PineConfig.debug = File(Constants.Paths.BASE, ".pine_debug").exists()
+		PineConfig.debuggable = File(Constants.Paths.BASE, ".debuggable").exists()
 		Log.d(LOG_TAG, "Debuggable: ${PineConfig.debuggable}")
 		PineConfig.disableHiddenApiPolicy = false
 		PineConfig.disableHiddenApiPolicyForPlatformDomain = false
@@ -70,7 +68,7 @@ object Injector {
 
 		// TODO: use json settings for internals instead
 		val useCustomCore = prefs.getBoolean(USE_LOCAL_CORE_KEY, false)
-		val customCoreFile = File(BASE_DIRECTORY, "$PROJECT_NAME.zip")
+		val customCoreFile = File(Constants.Paths.BASE, "$PROJECT_NAME.zip")
 
 		try {
 			val coreFile = if (useCustomCore && customCoreFile.exists()) {
