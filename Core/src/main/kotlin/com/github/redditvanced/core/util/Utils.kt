@@ -15,7 +15,7 @@ typealias BaseActivity = com.reddit.frontpage.a
 typealias FrontpageSettings = xw.c
 
 @Suppress("unused")
-@SuppressLint("StaticFieldLeak") // This never happens as the patch always replaces it with new one
+@SuppressLint("StaticFieldLeak") // This never happens as the patch always replaces it with the new value
 object Utils {
 	/**
 	 * The main thread.
@@ -40,18 +40,8 @@ object Utils {
 	 * Launches an URL in the user's preferred Browser
 	 * @param url The url to launch
 	 */
-	@JvmStatic
 	fun launchUrl(url: String) {
-		launchUrl(Uri.parse(url))
-	}
-
-	/**
-	 * Launches an URL in the user's preferred Browser
-	 * @param url The url to launch
-	 */
-	@JvmStatic
-	fun launchUrl(url: Uri) {
-		appActivity.startActivity(Intent(Intent.ACTION_VIEW).setData(url))
+		appActivity.startActivity(Intent(Intent.ACTION_VIEW).setData(Uri.parse(url)))
 	}
 
 	/**
@@ -67,8 +57,6 @@ object Utils {
 	 * @param message Message to show
 	 * @param showLonger Whether to show toast for an extended period of time
 	 */
-	@JvmOverloads
-	@JvmStatic
 	fun showToast(message: String, showLonger: Boolean = false) {
 		mainThread.post {
 			Toast.makeText(
@@ -87,7 +75,6 @@ object Utils {
 	 * @param type Type of the resource.
 	 * @return ID of the resource, or 0 if not found.
 	 */
-	@JvmStatic
 	fun getResId(name: String, type: String) = resIdCache.computeIfAbsent(name) { k ->
 		appContext.resources.getIdentifier(
 			k,

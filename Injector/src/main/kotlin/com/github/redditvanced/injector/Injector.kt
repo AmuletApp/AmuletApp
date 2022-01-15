@@ -181,7 +181,7 @@ object Injector {
 					val grantResults = callFrame.args[2] as Array<*>
 
 					if (requestCode == 45987) {
-						if (grantResults.contains(PackageManager.PERMISSION_DENIED))
+						if (grantResults.isEmpty() || grantResults.contains(PackageManager.PERMISSION_DENIED))
 							Toast.makeText(activity, "You have to grant storage permissions to use $PROJECT_NAME", Toast.LENGTH_LONG).show()
 						else {
 							Log.i(LOG_TAG, "MANAGE_EXTERNAL_STORAGE granted, restarting $PROJECT_NAME")
