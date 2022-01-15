@@ -13,8 +13,9 @@ Please come back later.
 
 # Capabilities
 - Rootless!! RedditVanced uses [Pine](https://github.com/canyie/pine) to hook into methods at runtime.
+- Security: Every plugin change is reviewed before publishing an update
 - Plugin system (No rebuilding the app)
-- Theming (WIP)
+- Custom app themes (WIP)
 
 # Limitations
 ⚠️ Absolutely no free premium or free coins. Asking will earn you a free mute/block.

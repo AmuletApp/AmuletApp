@@ -12,7 +12,9 @@ import androidx.fragment.app.Fragment
 import com.beust.klaxon.Klaxon
 import com.github.redditvanced.common.*
 import com.github.redditvanced.common.Constants.PROJECT_NAME
+import com.github.redditvanced.common.Constants.Paths.CUSTOM_CORE
 import com.github.redditvanced.common.models.CoreManifest
+import com.github.redditvanced.common.models.CoreSettings
 import com.reddit.frontpage.main.MainActivity
 import dalvik.system.BaseDexClassLoader
 import top.canyie.pine.Pine
@@ -23,9 +25,7 @@ import java.util.zip.ZipFile
 
 object Injector {
 	const val LOG_TAG = "Injector"
-
-	// TODO: use json settings instead
-	private const val USE_LOCAL_CORE_KEY = "RV_useCustomCore"
+	private val klaxon = Klaxon()
 
 	// private var baseActivityUnhook: MethodHook.Unhook? = null
 	fun init(activity: BaseActivity) {
@@ -63,24 +63,23 @@ object Injector {
 		if (!pruneArtProfile(activity))
 			Log.w(LOG_TAG, "Failed to prune art profile")
 
-		val prefs = activity.getSharedPreferences(PROJECT_NAME.lowercase(), Context.MODE_PRIVATE)
+		val coreSettings = klaxon.parse<CoreSettings>(Constants.Paths.CORE_SETTINGS)
+			?: CoreSettings()
+		klaxon.toJsonFile(coreSettings, Constants.Paths.CORE_SETTINGS)
+
 		val cachedCoreFile = File(activity.codeCacheDir, "$PROJECT_NAME.zip")
 
-		// TODO: use json settings for internals instead
-		val useCustomCore = prefs.getBoolean(USE_LOCAL_CORE_KEY, false)
-		val customCoreFile = File(Constants.Paths.BASE, "$PROJECT_NAME.zip")
-
 		try {
-			val coreFile = if (useCustomCore && customCoreFile.exists()) {
-				Log.d(LOG_TAG, "Loading custom core from ${customCoreFile.absolutePath}")
-				customCoreFile
-			} else if (useCustomCore) {
+			val coreFile = if (coreSettings.useCustomCore && CUSTOM_CORE.exists()) {
+				Log.d(LOG_TAG, "Loading custom core from ${CUSTOM_CORE.absolutePath}")
+				CUSTOM_CORE
+			} else if (coreSettings.useCustomCore) {
 				Log.i(LOG_TAG, "Custom core missing, using default...")
 				cachedCoreFile
 			} else cachedCoreFile
 
 			// Download default core to cache dir
-			if (!useCustomCore && !cachedCoreFile.exists()) {
+			if (!coreSettings.useCustomCore && !cachedCoreFile.exists()) {
 				Log.d(LOG_TAG, "Downloading core from github...")
 				val thread = Thread {
 					// TODO: download core
@@ -136,7 +135,7 @@ object Injector {
 		val pathList = pathListField[classLoader]!!
 		val addDexPath = pathList.javaClass.getDeclaredMethod("addDexPath", String::class.java, File::class.java)
 		addDexPath.isAccessible = true
-		addDexPath.invoke(pathList, dex.absolutePath, null as File?)
+		addDexPath.invoke(pathList, dex.absolutePath, null)
 	}
 
 	/**

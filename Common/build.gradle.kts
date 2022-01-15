@@ -33,5 +33,6 @@ android {
 }
 
 dependencies {
+	implementation("com.beust:klaxon:5.5")
 	compileOnly(files("../.assets/com.reddit.frontpage-dex2jar.jar"))
 }

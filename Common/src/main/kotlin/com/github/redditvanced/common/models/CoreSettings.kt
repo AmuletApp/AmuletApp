@@ -20,4 +20,9 @@ data class CoreSettings(
 	 * Mapped by plugin name -> status
 	 */
 	val plugins: Map<String, Boolean> = emptyMap(),
+
+	/**
+	 * Use a custom core build
+	 */
+	val useCustomCore: Boolean = false,
 )

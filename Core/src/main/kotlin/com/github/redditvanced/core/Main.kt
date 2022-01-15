@@ -1,8 +1,10 @@
 package com.github.redditvanced.core
 
 import android.os.Looper
+import com.beust.klaxon.Klaxon
 import com.github.redditvanced.common.BaseActivity
 import com.github.redditvanced.common.Constants
+import com.github.redditvanced.common.models.CoreSettings
 import com.github.redditvanced.core.managers.PluginManager
 import com.github.redditvanced.core.patcher.Patcher
 import com.github.redditvanced.core.util.*
@@ -14,6 +16,7 @@ sealed class Main {
 	companion object {
 		val logger = Logger("Core")
 		val patcher = Patcher(logger)
+		lateinit var settings: CoreSettings
 		private var initialized = false
 	}
 
@@ -84,7 +87,9 @@ sealed class Main {
 			exitProcess(2)
 		}
 
-		// TODO: load core settings
+		// TODO: somehow save settings when changing the settings properties
+		settings = Klaxon().parse<CoreSettings>(Constants.Paths.CORE_SETTINGS)
+			?: CoreSettings()
 		PluginManager.loadAllPlugins()
 		PluginManager.startAllPlugins()
 	}

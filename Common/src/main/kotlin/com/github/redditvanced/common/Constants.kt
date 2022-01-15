@@ -1,6 +1,7 @@
 package com.github.redditvanced.common
 
 import android.os.Environment
+import java.io.File
 
 @Suppress("MemberVisibilityCanBePrivate", "unused")
 object Constants {
@@ -29,6 +30,10 @@ object Constants {
 		 * TODO: find a better extension
 		 */
 		const val PLUGIN_EXT = ".rvp"
+
+		val CORE_SETTINGS = File("$BASE/settings.json")
+		val CUSTOM_CORE = File("$BASE/build/core.zip")
+		val INJECTOR_DEX = File("$BASE/build/injector.dex")
 	}
 
 	object Discord {
