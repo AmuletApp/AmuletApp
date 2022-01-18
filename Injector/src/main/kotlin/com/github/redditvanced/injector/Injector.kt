@@ -93,7 +93,7 @@ object Injector {
 
 				val zip = ZipFile(coreFile)
 				val manifestStream = zip.getInputStream(zip.getEntry("manifest.json"))
-				val manifest = Klaxon().parse<CoreManifest>(manifestStream)
+				val manifest = klaxon.parse<CoreManifest>(manifestStream)
 					?: throw IllegalStateException("Failed to parse core manifest")
 				zip.close()
 				Log.d(LOG_TAG, "Retrieved supported Reddit version: ${manifest.redditVersionCode}")

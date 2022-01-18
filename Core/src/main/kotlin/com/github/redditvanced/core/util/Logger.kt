@@ -9,19 +9,19 @@ import com.github.redditvanced.common.Constants
  */
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 class Logger(var module: String) {
-	private fun format(msg: String) = "[$module] $msg"
+	private fun format(msg: Any) = "[$module] $msg"
 
 	/**
 	 * Logs a [Log.VERBOSE] message
 	 * @param msg Message to log
 	 */
-	fun verbose(msg: String) = Log.v(Constants.PROJECT_NAME, format(msg))
+	fun verbose(msg: Any) = Log.v(Constants.PROJECT_NAME, format(msg))
 
 	/**
 	 * Logs a [Log.DEBUG] message
 	 * @param msg Message to log
 	 */
-	fun debug(msg: String) = Log.d(Constants.PROJECT_NAME, format(msg))
+	fun debug(msg: Any) = Log.d(Constants.PROJECT_NAME, format(msg))
 
 	/**
 	 * Logs a [Log.INFO] message and prints the stacktrace of the exception
@@ -29,15 +29,15 @@ class Logger(var module: String) {
 	 * @param throwable Exception to log
 	 */
 	@JvmOverloads
-	fun info(msg: String, throwable: Throwable? = null) =
+	fun info(msg: Any, throwable: Throwable? = null) =
 		Log.i(Constants.PROJECT_NAME, format(msg), throwable)
 
 	/**
 	 * Logs a [Log.INFO] message, and shows it to the user as a toast
 	 * @param msg Message to log/show
 	 */
-	fun infoToast(msg: String) {
-		Utils.showToast(msg)
+	fun infoToast(msg: Any) {
+		Utils.showToast(msg.toString())
 		info(msg, null)
 	}
 
@@ -47,7 +47,7 @@ class Logger(var module: String) {
 	 * @param throwable Exception to log
 	 */
 	@JvmOverloads
-	fun warn(msg: String, throwable: Throwable? = null) =
+	fun warn(msg: Any, throwable: Throwable? = null) =
 		Log.w(Constants.PROJECT_NAME, format(msg), throwable)
 
 	/**
@@ -55,7 +55,7 @@ class Logger(var module: String) {
 	 * @param msg Message to log/show
 	 * @param throwable Exception to log
 	 */
-	fun warnToast(msg: String, throwable: Throwable? = null) {
+	fun warnToast(msg: Any, throwable: Throwable? = null) {
 		Utils.showToast(msg)
 		Log.w(Constants.PROJECT_NAME, format(msg), throwable)
 	}
@@ -66,7 +66,7 @@ class Logger(var module: String) {
 	 * @param throwable Exception to log
 	 */
 	@JvmOverloads
-	fun error(msg: String, throwable: Throwable? = null) =
+	fun error(msg: Any, throwable: Throwable? = null) =
 		Log.e(Constants.PROJECT_NAME, format(msg), throwable)
 
 	/**
@@ -89,8 +89,8 @@ class Logger(var module: String) {
 	 * @param throwable Exception to log
 	 */
 	@JvmOverloads
-	fun errorToast(msg: String, throwable: Throwable? = null) {
-		Utils.showToast(msg, true)
+	fun errorToast(msg: Any, throwable: Throwable? = null) {
+		Utils.showToast(msg.toString(), true)
 		error(msg, throwable)
 	}
 }
