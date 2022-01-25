@@ -1,6 +1,7 @@
 plugins {
 	id("com.android.library")
 	kotlin("android") version "1.6.10"
+	id("redditvanced")
 }
 
 android {
@@ -34,5 +35,5 @@ android {
 
 dependencies {
 	implementation("com.beust:klaxon:5.5")
-	compileOnly(files("../.assets/com.reddit.frontpage-dex2jar.jar"))
+	redditApk("::405543")
 }

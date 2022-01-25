@@ -56,7 +56,7 @@ class Logger(var module: String) {
 	 * @param throwable Exception to log
 	 */
 	fun warnToast(msg: Any, throwable: Throwable? = null) {
-		Utils.showToast(msg)
+		Utils.showToast(msg.toString())
 		Log.w(Constants.PROJECT_NAME, format(msg), throwable)
 	}
 

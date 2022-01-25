@@ -13,4 +13,7 @@ data class RemoteData(
 	 * Latest core build available
 	 */
 	val latestCoreVersion: String,
+
+	val latestRedditVersionName: String,
+	val latestRedditVersionCode: String,
 )
