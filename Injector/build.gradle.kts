@@ -1,6 +1,7 @@
 plugins {
 	id("com.android.library")
 	kotlin("android") version "1.6.10"
+	id("redditvanced")
 }
 
 android {
@@ -26,8 +27,7 @@ android {
 		freeCompilerArgs = freeCompilerArgs +
 			"-Xno-call-assertions" +
 			"-Xno-param-assertions" +
-			"-Xno-receiver-assertions" +
-			"-Xuse-experimental=kotlinx.serialization.ExperimentalSerializationApi"
+			"-Xno-receiver-assertions"
 	}
 
 	buildFeatures {
@@ -36,10 +36,10 @@ android {
 }
 
 dependencies {
-//	discord("com.discord:discord:${findProperty("discord_version")}")
-
 	implementation(project(":Common"))
 	implementation("com.beust:klaxon:5.5")
 	implementation("com.github.Aliucord:pine:83f67b2cdb")
-	compileOnly(files("../.assets/com.reddit.frontpage-dex2jar.jar"))
+
+	val redditVersion: String by project
+	redditApk("::$redditVersion")
 }

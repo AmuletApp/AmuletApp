@@ -6,4 +6,4 @@ package com.github.redditvanced.common
  */
 
 typealias BaseActivity = com.reddit.frontpage.a
-typealias FrontpageSettings = xw.c
+typealias FrontpageSettings = ce.c

@@ -28,12 +28,13 @@ android {
 		freeCompilerArgs = freeCompilerArgs +
 			"-Xno-call-assertions" +
 			"-Xno-param-assertions" +
-			"-Xno-receiver-assertions" +
-			"-Xuse-experimental=kotlinx.serialization.ExperimentalSerializationApi"
+			"-Xno-receiver-assertions"
 	}
 }
 
 dependencies {
 	implementation("com.beust:klaxon:5.5")
-	redditApk("::405543")
+
+	val redditVersion: String by project
+	redditApk("::$redditVersion")
 }

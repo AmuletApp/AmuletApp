@@ -25,7 +25,7 @@ This means `x86` and `x86_64` are unsupported, **no emulators**.
 
 Android versions: 7 (SDK 24) - 12L (SDK 32)
 
-Reddit version: v2021.47.0 (394342) (Installer will download automatically)
+Reddit version: v2022.2.0 (405543) (Installer will download automatically)
 
 # Credits/Licensing
 - [Pine](https://github.com/canyie/pine) - Dynamic java method hook framework on ART

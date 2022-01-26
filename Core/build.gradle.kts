@@ -1,5 +1,3 @@
-import org.apache.commons.io.output.ByteArrayOutputStream
-
 plugins {
 	id("com.android.library")
 	id("maven-publish")
@@ -15,8 +13,6 @@ android {
 	defaultConfig {
 		minSdk = 24
 		targetSdk = 30
-
-//		buildConfigField("int", "DISCORD_VERSION", findProperty("discord_version") as String)
 	}
 
 	buildTypes {
@@ -33,8 +29,7 @@ android {
 		freeCompilerArgs = freeCompilerArgs +
 			"-Xno-call-assertions" +
 			"-Xno-param-assertions" +
-			"-Xno-receiver-assertions" +
-			"-Xuse-experimental=kotlinx.serialization.ExperimentalSerializationApi"
+			"-Xno-receiver-assertions"
 	}
 
 	buildFeatures {
@@ -47,9 +42,11 @@ redditVanced {
 }
 
 dependencies {
-	implementation("com.beust:klaxon:5.5")
 	api(project(":Common"))
-
 	api(files("../.assets/pine.jar"))
-	redditApk("::405543")
+
+	implementation("com.beust:klaxon:5.5")
+
+	val redditVersion: String by project
+	redditApk("::$redditVersion")
 }
