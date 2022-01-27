@@ -1,3 +1,5 @@
+import com.github.redditvanced.gradle.ProjectType
+
 plugins {
 	id("com.android.library")
 	kotlin("android") version "1.6.10"
@@ -30,6 +32,10 @@ android {
 			"-Xno-param-assertions" +
 			"-Xno-receiver-assertions"
 	}
+}
+
+redditVanced {
+	projectType.set(ProjectType.REGULAR)
 }
 
 dependencies {

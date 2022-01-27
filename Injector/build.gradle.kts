@@ -1,3 +1,5 @@
+import com.github.redditvanced.gradle.ProjectType
+
 plugins {
 	id("com.android.library")
 	kotlin("android") version "1.6.10"
@@ -22,6 +24,7 @@ android {
 		sourceCompatibility = JavaVersion.VERSION_11
 		targetCompatibility = JavaVersion.VERSION_11
 	}
+
 	kotlinOptions {
 		jvmTarget = "11"
 		freeCompilerArgs = freeCompilerArgs +
@@ -33,6 +36,10 @@ android {
 	buildFeatures {
 		viewBinding = true
 	}
+}
+
+redditVanced {
+	projectType.set(ProjectType.INJECTOR)
 }
 
 dependencies {

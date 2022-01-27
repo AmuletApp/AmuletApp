@@ -1,3 +1,5 @@
+import com.github.redditvanced.gradle.ProjectType
+
 plugins {
 	id("com.android.library")
 	id("maven-publish")
@@ -20,10 +22,12 @@ android {
 			isMinifyEnabled = false
 		}
 	}
+
 	compileOptions {
 		sourceCompatibility = JavaVersion.VERSION_11
 		targetCompatibility = JavaVersion.VERSION_11
 	}
+
 	kotlinOptions {
 		jvmTarget = "11"
 		freeCompilerArgs = freeCompilerArgs +
@@ -39,6 +43,7 @@ android {
 
 redditVanced {
 	redditVancedBackend.set("http://localhost:8080")
+	projectType.set(ProjectType.CORE)
 }
 
 dependencies {
