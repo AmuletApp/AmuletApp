@@ -9,16 +9,16 @@ package com.github.redditvanced.core.annotations
 @Retention(AnnotationRetention.SOURCE)
 annotation class RedditVancedPlugin(
 	/**
-	 * Whether your plugin has resources that need to be loaded
+	 * Whether to load the plugin's resources (if any)
 	 */
-	val loadResources: Boolean,
+	val loadResources: Boolean = false,
 
 	/**
 	 * Prompts the user to restart Aliucord after:
-	 * - Enabling manually
-	 * - Disabling manually
+	 * - Enabling/Disabling manually
 	 * - Updating
 	 * - Uninstalling
+	 * - Reinstalling
 	 */
-	val requiresRestart: Boolean,
+	val requiresRestart: Boolean = false,
 )
