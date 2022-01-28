@@ -1,16 +1,17 @@
 import com.github.redditvanced.gradle.ProjectType
 
 plugins {
+	kotlin("android") version "1.6.10"
 	id("com.android.library")
 	id("maven-publish")
-	kotlin("android") version "1.6.10"
 	id("redditvanced")
 }
 
+group = "com.github.redditvanced"
+version = "1.0.0"
+
 android {
 	compileSdk = 30
-
-	lintOptions.disable("GradleDependency")
 
 	defaultConfig {
 		minSdk = 24
@@ -54,4 +55,15 @@ dependencies {
 
 	val redditVersion: String by project
 	redditApk("::$redditVersion")
+}
+
+afterEvaluate {
+	publishing {
+		publications {
+			register(project.name, MavenPublication::class) {
+				from(components["debug"])
+				artifact(tasks["debugSourcesJar"])
+			}
+		}
+	}
 }
