@@ -82,7 +82,7 @@ object Utils {
 	}
 
 	/**
-	 * Initialize patches
+	 * Initialize internal patches
 	 */
 	fun init() {
 		Main.patcher.before<BaseActivity>("onCreate", Bundle::class.java) {

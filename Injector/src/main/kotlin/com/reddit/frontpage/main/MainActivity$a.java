@@ -8,20 +8,17 @@ import com.github.redditvanced.injector.Injector;
 import com.reddit.frontpage.LightboxActivity;
 import com.reddit.screen.media.streaming.StreamActivity;
 
-// gg1.a is ActivityLifecycleCallbacksSimple
 @SuppressWarnings("unused")
 @SuppressLint("SourceLockedOrientationActivity")
-public class AppActivity$a extends gg1.a {
+public class MainActivity$a extends lG.a {
 	private static boolean initialized = false;
 
-	public AppActivity$a(MainActivity activity) {
+	public MainActivity$a(MainActivity activity) {
 		if (!initialized) {
 			initialized = true;
 			Injector.INSTANCE.init(activity);
 		}
 	}
-
-	// TODO: investigate MainActivity, its empty
 
 	@Override
 	public void onActivityDestroyed(Activity activity) {
