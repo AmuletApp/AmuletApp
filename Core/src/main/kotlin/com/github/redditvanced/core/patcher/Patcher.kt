@@ -22,8 +22,6 @@ class Patcher(
 	 */
 	private val unpatches = mutableListOf<Unpatch>()
 
-	// TODO: make constructor/method hooks use the member hook, reduce code duplication
-
 	/**
 	 * Replaces a constructor of a class.
 	 * @param paramTypes parameters of the method. Useful for patching individual overloads
@@ -31,16 +29,9 @@ class Patcher(
 	 * @return The [Runnable] object of the patch
 	 * @see [XC_MethodHook.beforeHookedMethod]
 	 */
-	inline fun <reified T> instead(vararg paramTypes: Class<*>, crossinline callback: InsteadHookCallback<T>): Unpatch =
-		patch(T::class.java.getDeclaredConstructor(*paramTypes), object : XC_MethodHook() {
-			override fun beforeHookedMethod(param: MethodHookParam) {
-				try {
-					param.result = callback(param.thisObject as T, param)
-				} catch (th: Throwable) {
-					logger.error("Exception while instead-hooking constructor of ${param.method.declaringClass}", th)
-				}
-			}
-		})
+	@Suppress("UNCHECKED_CAST")
+	inline fun <reified T> instead(vararg paramTypes: Class<*>, noinline callback: InsteadHookCallback<T>): Unpatch =
+		instead(T::class.java.getDeclaredConstructor(*paramTypes), callback as HookCallback<Any>)
 
 	/**
 	 * Replaces a method of a class.
@@ -50,16 +41,9 @@ class Patcher(
 	 * @return The [Runnable] object of the patch
 	 * @see [XC_MethodHook.beforeHookedMethod]
 	 */
-	inline fun <reified T> instead(methodName: String, vararg paramTypes: Class<*>, crossinline callback: InsteadHookCallback<T>): Unpatch =
-		patch(T::class.java.getDeclaredMethod(methodName, *paramTypes), object : XC_MethodHook() {
-			override fun beforeHookedMethod(param: MethodHookParam) {
-				try {
-					param.result = callback(param.thisObject as T, param)
-				} catch (th: Throwable) {
-					logger.error("Exception while instead-hooking ${param.method.declaringClass.name}.${param.method.name}", th)
-				}
-			}
-		})
+	@Suppress("UNCHECKED_CAST")
+	inline fun <reified T> instead(methodName: String, vararg paramTypes: Class<*>, noinline callback: InsteadHookCallback<T>): Unpatch =
+		instead(T::class.java.getDeclaredMethod(methodName, *paramTypes), callback as HookCallback<Any>)
 
 	/**
 	 * Replaces a method/constructor of a class.
@@ -86,16 +70,9 @@ class Patcher(
 	 * @return The [Runnable] object of the patch
 	 * @see [XC_MethodHook.beforeHookedMethod]
 	 */
-	inline fun <reified T> before(vararg paramTypes: Class<*>, crossinline callback: HookCallback<T>): Unpatch =
-		patch(T::class.java.getDeclaredConstructor(*paramTypes), object : XC_MethodHook() {
-			override fun beforeHookedMethod(param: MethodHookParam) {
-				try {
-					callback(param.thisObject as T, param)
-				} catch (th: Throwable) {
-					logger.error("Exception while pre-hooking constructor of ${param.method.declaringClass}", th)
-				}
-			}
-		})
+	@Suppress("UNCHECKED_CAST")
+	inline fun <reified T> before(vararg paramTypes: Class<*>, noinline callback: HookCallback<T>): Unpatch =
+		before(T::class.java.getDeclaredConstructor(*paramTypes), callback as HookCallback<Any>)
 
 	/**
 	 * Pre-hooks a method of a class.
@@ -105,16 +82,9 @@ class Patcher(
 	 * @return The [Runnable] object of the patch
 	 * @see [XC_MethodHook.beforeHookedMethod]
 	 */
-	inline fun <reified T> before(methodName: String, vararg paramTypes: Class<*>, crossinline callback: HookCallback<T>): Unpatch =
-		patch(T::class.java.getDeclaredMethod(methodName, *paramTypes), object : XC_MethodHook() {
-			override fun beforeHookedMethod(param: MethodHookParam) {
-				try {
-					callback(param.thisObject as T, param)
-				} catch (th: Throwable) {
-					logger.error("Exception while pre-hooking ${param.method.declaringClass.name}.${param.method.name}", th)
-				}
-			}
-		})
+	@Suppress("UNCHECKED_CAST")
+	inline fun <reified T> before(methodName: String, vararg paramTypes: Class<*>, noinline callback: HookCallback<T>): Unpatch =
+		before(T::class.java.getDeclaredMethod(methodName, *paramTypes), callback as HookCallback<Any>)
 
 	/**
 	 * Pre-hooks a method/constructor of a class.
@@ -141,16 +111,9 @@ class Patcher(
 	 * @return the [Runnable] object of the patch
 	 * @see [XC_MethodHook.afterHookedMethod]
 	 */
-	inline fun <reified T> after(vararg paramTypes: Class<*>, crossinline callback: HookCallback<T>): Unpatch =
-		patch(T::class.java.getDeclaredConstructor(*paramTypes), object : XC_MethodHook() {
-			override fun afterHookedMethod(param: MethodHookParam) {
-				try {
-					callback(param.thisObject as T, param)
-				} catch (th: Throwable) {
-					logger.error("Exception while hooking constructor of ${param.method.declaringClass}", th)
-				}
-			}
-		})
+	@Suppress("UNCHECKED_CAST")
+	inline fun <reified T> after(vararg paramTypes: Class<*>, noinline callback: HookCallback<T>): Unpatch =
+		after(T::class.java.getDeclaredConstructor(*paramTypes), callback as HookCallback<Any>)
 
 	/**
 	 * Post-hooks a method of a class.
@@ -160,16 +123,9 @@ class Patcher(
 	 * @return the [Runnable] object of the patch
 	 * @see [XC_MethodHook.afterHookedMethod]
 	 */
-	inline fun <reified T> after(methodName: String, vararg paramTypes: Class<*>, crossinline callback: HookCallback<T>): Unpatch =
-		patch(T::class.java.getDeclaredMethod(methodName, *paramTypes), object : XC_MethodHook() {
-			override fun afterHookedMethod(param: MethodHookParam) {
-				try {
-					callback(param.thisObject as T, param)
-				} catch (th: Throwable) {
-					logger.error("Exception while hooking ${param.method.declaringClass.name}.${param.method.name}", th)
-				}
-			}
-		})
+	@Suppress("UNCHECKED_CAST")
+	inline fun <reified T> after(methodName: String, vararg paramTypes: Class<*>, noinline callback: HookCallback<T>): Unpatch =
+		after(T::class.java.getDeclaredMethod(methodName, *paramTypes), callback as HookCallback<Any>)
 
 	/**
 	 * Post-hooks a method of a class.
