@@ -7,15 +7,10 @@ data class CoreManifest(
 	/**
 	 * The version of the core
 	 */
-	val coreVersion: String,
+	val version: String,
 
 	/**
 	 * The supported version code of the reddit app
 	 */
 	val redditVersionCode: Int,
-
-	/**
-	 * The supported version name of the reddit app
-	 */
-	val redditVersionName: String,
 )

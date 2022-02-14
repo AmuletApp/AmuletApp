@@ -6,7 +6,7 @@ package com.github.redditvanced.core.annotations
  */
 @Suppress("unused")
 @Target(AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.SOURCE)
+@Retention(AnnotationRetention.BINARY)
 annotation class RedditVancedPlugin(
 	/**
 	 * Whether to load the plugin's resources (if any)
