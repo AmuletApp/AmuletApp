@@ -43,7 +43,6 @@ android {
 }
 
 redditVanced {
-	redditVancedBackend.set("http://localhost:8080")
 	projectType.set(ProjectType.CORE)
 }
 
