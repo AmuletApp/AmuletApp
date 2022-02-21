@@ -27,7 +27,7 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/repository
           chmod +x gradlew
-          ./gradlew :Common:publish :Core:publish
+          ./gradlew publish
         env:
           MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}

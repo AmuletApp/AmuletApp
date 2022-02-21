@@ -62,6 +62,7 @@ afterEvaluate {
 			register(project.name, MavenPublication::class) {
 				from(components["debug"])
 				artifact(tasks["debugSourcesJar"])
+				artifact(tasks["make"])
 			}
 		}
 
@@ -69,10 +70,9 @@ afterEvaluate {
 			val username = System.getenv("MAVEN_USERNAME")
 			val password = System.getenv("MAVEN_PASSWORD")
 
-			if (username == null || password == null) {
-				project.logger.lifecycle("Maven username/password missing, publishing to mavenLocal...")
+			if (username == null || password == null)
 				mavenLocal()
-			} else maven {
+			else maven {
 				credentials {
 					this.username = username
 					this.password = password
