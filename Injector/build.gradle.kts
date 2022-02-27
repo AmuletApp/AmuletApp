@@ -1,8 +1,8 @@
 import com.github.redditvanced.gradle.ProjectType
 
 plugins {
-	kotlin("android") version "1.6.10"
-	id("com.android.library")
+	id("com.android.application")
+	id("kotlin-android")
 	id("maven-publish")
 	id("redditvanced")
 }
@@ -11,6 +11,8 @@ group = "com.github.redditvanced"
 version = "1.0.0"
 
 android {
+	namespace = "com.github.redditvanced.injector"
+
 	compileSdk = 30
 
 	defaultConfig {
@@ -18,9 +20,16 @@ android {
 		targetSdk = 30
 	}
 
+	sourceSets {
+		named("main") {
+			java.srcDir("src/main/kotlin")
+		}
+	}
+
 	buildTypes {
-		release {
+		all {
 			isMinifyEnabled = false
+			multiDexEnabled = false
 		}
 	}
 
@@ -36,10 +45,6 @@ android {
 			"-Xno-param-assertions" +
 			"-Xno-receiver-assertions"
 	}
-
-	buildFeatures {
-		viewBinding = true
-	}
 }
 
 redditVanced {
@@ -47,21 +52,26 @@ redditVanced {
 }
 
 dependencies {
+	val redditVersion: String by project
+	redditApk("::$redditVersion")
+
 	implementation(project(":Common"))
 	implementation("com.beust:klaxon:5.5")
 	implementation("com.github.Aliucord:pine:83f67b2cdb")
+}
 
-	val redditVersion: String by project
-	redditApk("::$redditVersion")
+task<Jar>("sourcesJar") {
+	from(android.sourceSets.named("main").get().java.srcDirs)
+	archiveClassifier.set("sources")
 }
 
 afterEvaluate {
 	publishing {
 		publications {
 			register(project.name, MavenPublication::class) {
-				from(components["debug"])
-				artifact(tasks["debugSourcesJar"])
-				artifact(tasks["make"].outputs.files.first())
+				artifact(tasks["bundleReleaseClasses"].outputs.files.singleFile)
+				artifact(tasks["sourcesJar"])
+				artifact(tasks["make"])
 			}
 		}
 

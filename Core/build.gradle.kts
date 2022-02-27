@@ -1,8 +1,8 @@
 import com.github.redditvanced.gradle.ProjectType
 
 plugins {
-	kotlin("android") version "1.6.10"
 	id("com.android.library")
+	id("kotlin-android")
 	id("maven-publish")
 	id("redditvanced")
 }

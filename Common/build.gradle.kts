@@ -1,8 +1,8 @@
 import com.github.redditvanced.gradle.ProjectType
 
 plugins {
-	kotlin("android") version "1.6.10"
 	id("com.android.library")
+	id("kotlin-android")
 	id("maven-publish")
 	id("redditvanced")
 }
@@ -11,6 +11,8 @@ group = "com.github.redditvanced"
 version = "1.0.0"
 
 android {
+	namespace = "com.github.redditvanced.common"
+
 	compileSdk = 30
 
 	defaultConfig {
@@ -53,8 +55,8 @@ afterEvaluate {
 	publishing {
 		publications {
 			register(project.name, MavenPublication::class) {
-				from(components["debug"])
-				artifact(tasks["debugSourcesJar"])
+				from(components["release"])
+				artifact(tasks["releaseSourcesJar"])
 			}
 		}
 

@@ -7,7 +7,8 @@ buildscript {
 	}
 	dependencies {
 		classpath("com.android.tools.build:gradle:7.0.4")
-		classpath("com.github.redditvanced:gradle:1.0.6")
+		classpath("com.github.redditvanced:gradle:1.0.7")
+		classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10")
 	}
 }
 
