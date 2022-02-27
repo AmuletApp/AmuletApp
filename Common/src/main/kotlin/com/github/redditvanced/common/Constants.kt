@@ -22,22 +22,14 @@ object Constants {
 
 	@Suppress("DEPRECATION")
 	object Paths {
-		/**
-		 * Reddit Vanced data path
-		 */
 		val BASE = Environment.getExternalStorageDirectory().absolutePath + "/$PROJECT_NAME"
 		val PLUGINS = "$BASE/plugins"
 		val THEMES = "$BASE/themes"
 		val CRASHLOGS = "$BASE/crashlogs"
 
-		/**
-		 * Plugin extension
-		 * TODO: find a better extension
-		 */
-		const val PLUGIN_EXT = ".rvp"
-
+		const val PLUGIN_EXT = ".rvanced"
 		val CORE_SETTINGS = File("$BASE/settings.json")
 		val CUSTOM_CORE = File("$BASE/build/core.zip")
-		val INJECTOR_DEX = File("$BASE/build/injector.dex")
+		val INJECTOR = File("$BASE/build/injector.zip")
 	}
 }
