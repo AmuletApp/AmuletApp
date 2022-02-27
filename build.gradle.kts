@@ -13,14 +13,14 @@ buildscript {
 }
 
 allprojects {
-    repositories {
-        google()
-        mavenCentral()
+	repositories {
+		google()
+		mavenCentral()
 		maven("https://redditvanced.ddns.net/maven/releases")
-        maven("https://jitpack.io")
-    }
+		maven("https://jitpack.io")
+	}
 }
 
 task<Delete>("clean") {
-    delete(rootProject.buildDir)
+	delete(rootProject.buildDir)
 }

@@ -4,14 +4,16 @@ import android.content.res.AssetManager
 import android.content.res.Resources
 import com.beust.klaxon.Klaxon
 import com.github.redditvanced.common.Constants.Paths
+import com.github.redditvanced.common.models.PluginManifest
+import com.github.redditvanced.core.coreplugins.CorePlugin
 import com.github.redditvanced.core.coreplugins.CorePlugins
 import com.github.redditvanced.core.entities.Plugin
-import com.github.redditvanced.common.models.PluginManifest
 import com.github.redditvanced.core.util.Logger
 import com.github.redditvanced.core.util.Utils
 import dalvik.system.PathClassLoader
 import kotlinx.serialization.SerializationException
 import java.io.File
+import java.io.FileNotFoundException
 
 @Suppress("MemberVisibilityCanBePrivate")
 object PluginManager {
@@ -64,8 +66,11 @@ object PluginManager {
 	@Suppress("DEPRECATION")
 	private fun loadPlugin(name: String): Boolean {
 		logger.info("Loading plugin $name")
-		val path = "${Paths.PLUGINS}/$name/${Paths.PLUGIN_EXT}"
+		val path = "${Paths.PLUGINS}/$name.${Paths.PLUGIN_EXT}"
 		val ctx = Utils.appContext
+
+		if (!File(path).exists())
+			throw FileNotFoundException("No plugin is installed with the name $name!")
 
 		try {
 			val loader = PathClassLoader(path, ctx.classLoader)
@@ -121,6 +126,7 @@ object PluginManager {
 		logger.info("Starting plugin $name")
 		val plugin = plugins[name]
 			?: throw IllegalStateException("Plugin $name is not loaded")
+		if (plugin.isStarted) return
 
 		try {
 			plugin.isStarted = true
@@ -156,6 +162,9 @@ object PluginManager {
 		logger.info("Unloading plugin $name")
 		val plugin = plugins[name]
 			?: throw IllegalStateException("Plugin $name is not loaded")
+
+		if (plugin is CorePlugin)
+			throw IllegalStateException("Plugin $name is a coreplugin which cannot be unloaded!")
 
 		if (plugin.isStarted)
 			stopPlugin(name)
