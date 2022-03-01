@@ -7,7 +7,7 @@ import android.net.Uri
 import android.os.*
 import android.widget.Toast
 import com.github.redditvanced.common.BaseActivity
-import com.github.redditvanced.core.Main
+import com.github.redditvanced.core.patcher.Patcher
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -84,8 +84,8 @@ object Utils {
 	/**
 	 * Initialize internal patches
 	 */
-	fun init() {
-		Main.patcher.before<BaseActivity>("onCreate", Bundle::class.java) {
+	fun init(patcher: Patcher) {
+		patcher.before<BaseActivity>("onCreate", Bundle::class.java) {
 			appActivity = this
 			appContext = this.applicationContext
 		}

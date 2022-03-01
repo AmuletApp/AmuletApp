@@ -2,7 +2,6 @@ package com.github.redditvanced.injector
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.*
@@ -12,6 +11,7 @@ import androidx.fragment.app.Fragment
 import com.beust.klaxon.Klaxon
 import com.github.redditvanced.common.*
 import com.github.redditvanced.common.Constants.PROJECT_NAME
+import com.github.redditvanced.common.Constants.Paths.CORE_SETTINGS
 import com.github.redditvanced.common.Constants.Paths.CUSTOM_CORE
 import com.github.redditvanced.common.models.CoreManifest
 import com.github.redditvanced.common.models.CoreSettings
@@ -27,13 +27,22 @@ object Injector {
 	const val LOG_TAG = "Injector"
 	private val klaxon = Klaxon()
 
-	// private var baseActivityUnhook: MethodHook.Unhook? = null
-	fun init(activity: BaseActivity) {
-		checkPermissions(activity)
+	fun preInit(activity: MainActivity) {
+		var hook: MethodHook.Unhook? = null
+		hook = Pine.hook(
+			activity::class.java.getDeclaredMethod("onCreate", Bundle::class.java),
+			object : MethodHook() {
+				override fun beforeCall(callFrame: Pine.CallFrame) {
+					init(callFrame.thisObject as MainActivity)
+					hook?.unhook()
+					hook = null
+				}
+			})
+	}
 
+	fun init(activity: MainActivity) {
 		PineConfig.debug = File(Constants.Paths.BASE, ".pine_debug").exists()
 		PineConfig.debuggable = File(Constants.Paths.BASE, ".debuggable").exists()
-		Log.d(LOG_TAG, "Debuggable: ${PineConfig.debuggable}")
 		PineConfig.disableHiddenApiPolicy = false
 		PineConfig.disableHiddenApiPolicyForPlatformDomain = false
 		Pine.disableJitInline()
@@ -44,37 +53,37 @@ object Injector {
 
 		Log.i(LOG_TAG, "Initializing $PROJECT_NAME...")
 		try {
-			// baseActivityUnhook = Pine.hook(
-			// 	BaseActivity::class.java.getDeclaredMethod("onCreate", Bundle::class.java),
-			// 	object : MethodHook() {
-			// 		override fun beforeCall(callFrame: Pine.CallFrame) {
-			// 			initCore(callFrame.thisObject as BaseActivity)
-			// 			baseActivityUnhook?.unhook()
-			// 			baseActivityUnhook = null
-			// 		}
-			// 	})
 			initCore(activity)
 		} catch (t: Throwable) {
 			Log.e(LOG_TAG, "Failed to initialize $PROJECT_NAME", t)
 		}
 	}
 
-	private fun initCore(activity: BaseActivity) {
+	private fun initCore(activity: MainActivity) {
 		if (!pruneArtProfile(activity))
 			Log.w(LOG_TAG, "Failed to prune art profile")
 
-		val coreSettings = klaxon.parse<CoreSettings>(Constants.Paths.CORE_SETTINGS)
-			?: CoreSettings()
-		klaxon.toJsonFile(coreSettings, Constants.Paths.CORE_SETTINGS)
+		File(Constants.Paths.PLUGINS).mkdirs()
+		File(Constants.Paths.THEMES).mkdir()
+		File(Constants.Paths.CRASHLOGS).mkdir()
 
-		val cachedCoreFile = File(activity.codeCacheDir, "$PROJECT_NAME.zip")
+		if (!CORE_SETTINGS.exists()) {
+			CORE_SETTINGS.createNewFile()
+			// TODO: remove useCustomCore=true
+			klaxon.toJsonFile(CoreSettings(useCustomCore = true), CORE_SETTINGS)
+		}
+
+		val cachedCoreFile = File(activity.codeCacheDir, "core.zip")
+		val coreSettings = requireNotNull(klaxon.parse<CoreSettings>(CORE_SETTINGS)) {
+			"Failed to parse core settings!"
+		}
 
 		try {
 			val coreFile = if (coreSettings.useCustomCore && CUSTOM_CORE.exists()) {
 				Log.d(LOG_TAG, "Loading custom core from ${CUSTOM_CORE.absolutePath}")
 				CUSTOM_CORE
 			} else if (coreSettings.useCustomCore) {
-				Log.i(LOG_TAG, "Custom core missing, using default...")
+				Log.w(LOG_TAG, "Custom core missing, using default...")
 				cachedCoreFile
 			} else cachedCoreFile
 
@@ -103,24 +112,24 @@ object Injector {
 				}
 			}
 
-			Log.d(LOG_TAG, "Adding $PROJECT_NAME to the classpath...")
-			addDexToClasspath(cachedCoreFile, activity.classLoader)
-			Log.d(LOG_TAG, "Successfully added $PROJECT_NAME to the classpath")
+			Log.d(LOG_TAG, "Adding core to the classpath...")
+			addDexToClasspath(coreFile, activity.classLoader)
+			Log.d(LOG_TAG, "Successfully added core to the classpath.")
 
 			val c = Class.forName("com.github.redditvanced.core.Main")
-			val init = c.getDeclaredMethod("init", BaseActivity::class.java)
-			Log.d(LOG_TAG, "Invoking main $PROJECT_NAME entry point...")
+			val init = c.getDeclaredMethod("init", MainActivity::class.java)
+			Log.d(LOG_TAG, "Invoking main core entry point...")
 			init.invoke(null, activity)
-			Log.d(LOG_TAG, "Finished initializing $PROJECT_NAME")
+			Log.d(LOG_TAG, "Finished initializing core.")
 		} catch (t: Throwable) {
 			// Delete file so it is reinstalled the next time
-			cachedCoreFile.delete()
-
-			errorToast("Failed to initialize $PROJECT_NAME", activity, t)
+			if (!coreSettings.useCustomCore)
+				cachedCoreFile.delete()
+			errorToast("Failed to load $PROJECT_NAME", activity, t)
 		}
 	}
 
-	private fun errorToast(msg: String, activity: BaseActivity, throwable: Throwable? = null) {
+	private fun errorToast(msg: String, activity: MainActivity, throwable: Throwable? = null) {
 		Log.e(LOG_TAG, msg, throwable)
 		Handler(Looper.getMainLooper()).post {
 			Toast.makeText(activity, msg, Toast.LENGTH_LONG).show()
@@ -131,10 +140,10 @@ object Injector {
 	private fun addDexToClasspath(dex: File, classLoader: ClassLoader) {
 		// https://android.googlesource.com/platform/libcore/+/58b4e5dbb06579bec9a8fc892012093b6f4fbe20/dalvik/src/main/java/dalvik/system/BaseDexClassLoader.java#59
 		val pathListField = BaseDexClassLoader::class.java.getDeclaredField("pathList")
-		pathListField.isAccessible = true
+			.apply { isAccessible = true }
 		val pathList = pathListField[classLoader]!!
 		val addDexPath = pathList.javaClass.getDeclaredMethod("addDexPath", String::class.java, File::class.java)
-		addDexPath.isAccessible = true
+			.apply { isAccessible = true }
 		addDexPath.invoke(pathList, dex.absolutePath, null)
 	}
 
@@ -142,9 +151,9 @@ object Injector {
 	 * Try to prevent method inlining by deleting the usage profile used by AOT compilation
 	 * https://source.android.com/devices/tech/dalvik/configure#how_art_works
 	 */
-	private fun pruneArtProfile(ctx: Context): Boolean {
+	private fun pruneArtProfile(activity: MainActivity): Boolean {
 		Log.d(LOG_TAG, "Pruning ART usage profile...")
-		val profile = File("/data/misc/profiles/cur/0/" + ctx.packageName + "/primary.prof")
+		val profile = File("/data/misc/profiles/cur/0/" + activity.packageName + "/primary.prof")
 		if (!profile.exists()) {
 			return false
 		}
@@ -163,11 +172,9 @@ object Injector {
 	 * Check and request write storage permissions
 	 * TODO: test if this works
 	 */
-	private fun checkPermissions(activity: BaseActivity): Boolean {
+	private fun checkPermissions(activity: MainActivity): Boolean {
 		val perm = Manifest.permission.WRITE_EXTERNAL_STORAGE
 
-		// if (ContextCompat.a(activity, perm) == PackageManager.PERMISSION_GRANTED)
-		// 	return
 		if (activity.checkSelfPermission(perm) == PackageManager.PERMISSION_GRANTED) return true
 
 		Pine.hook(

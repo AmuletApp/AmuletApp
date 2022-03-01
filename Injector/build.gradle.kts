@@ -57,7 +57,8 @@ dependencies {
 
 	implementation(project(":Common"))
 	implementation("com.beust:klaxon:5.5")
-	implementation("com.github.Aliucord:pine:83f67b2cdb")
+//	implementation("com.github.Aliucord:pine:83f67b2cdb")
+	implementation(files("../.assets/pine.jar"))
 }
 
 task<Jar>("sourcesJar") {

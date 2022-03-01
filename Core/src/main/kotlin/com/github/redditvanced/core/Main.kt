@@ -2,40 +2,34 @@ package com.github.redditvanced.core
 
 import android.os.Looper
 import com.beust.klaxon.Klaxon
-import com.github.redditvanced.common.BaseActivity
 import com.github.redditvanced.common.Constants
 import com.github.redditvanced.common.models.CoreSettings
 import com.github.redditvanced.core.managers.PluginManager
 import com.github.redditvanced.core.patcher.Patcher
 import com.github.redditvanced.core.util.*
+import com.reddit.frontpage.main.MainActivity
 import java.io.*
 import java.sql.Timestamp
 import kotlin.system.exitProcess
 
-sealed class Main {
-	companion object {
-		val logger = Logger("Core")
-		val patcher = Patcher(logger)
-		lateinit var settings: CoreSettings
-		private var initialized = false
-	}
+@Suppress("unused")
+object Main {
+	private val logger = Logger("Core")
+	private val patcher = Patcher(logger)
+	lateinit var settings: CoreSettings
+	private var initialized = false
 
 	/**
 	 * Init hook called by the Injector
 	 */
+	@JvmStatic
 	@Suppress("unused")
-	fun init(activity: BaseActivity) {
-		logger.info("Main#init called")
-
+	fun init(activity: MainActivity) {
 		if (initialized) return
 		initialized = true
 
 		Utils.appActivity = activity
-		Utils.init()
-
-		File(Constants.Paths.PLUGINS).mkdirs()
-		File(Constants.Paths.THEMES).mkdir()
-		File(Constants.Paths.CRASHLOGS).mkdir()
+		Utils.init(patcher)
 
 		// Handle crashes
 		Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->

@@ -18,7 +18,10 @@ public class HiddenAPIPolicy {
 	 */
 	public static void disableHiddenApiPolicy() {
 		// Not supported as it doesn't exist
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return;
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+			Log.w(Injector.LOG_TAG, "API Version too low, skipping disabling hidden api policy!");
+			return;
+		}
 
 		try {
 			var mForName = Class.class.getDeclaredMethod("forName", String.class);
@@ -42,5 +45,6 @@ public class HiddenAPIPolicy {
 		} catch (Exception t) {
 			Log.e(Injector.LOG_TAG, "Failed to disable hidden api policy!", t);
 		}
+		Log.i(Injector.LOG_TAG, "Successfully disabled hidden api policy!");
 	}
 }
