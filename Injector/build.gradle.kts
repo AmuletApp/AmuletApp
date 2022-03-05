@@ -12,7 +12,6 @@ version = "1.0.0"
 
 android {
 	namespace = "com.github.redditvanced.injector"
-
 	compileSdk = 30
 
 	defaultConfig {

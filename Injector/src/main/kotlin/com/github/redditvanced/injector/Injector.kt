@@ -9,15 +9,17 @@ import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import com.beust.klaxon.Klaxon
-import com.github.redditvanced.common.*
 import com.github.redditvanced.common.Constants.PROJECT_NAME
-import com.github.redditvanced.common.Constants.Paths.CORE_SETTINGS
-import com.github.redditvanced.common.Constants.Paths.CUSTOM_CORE
+import com.github.redditvanced.common.Constants.Paths
+import com.github.redditvanced.common.FrontpageSettings
 import com.github.redditvanced.common.models.CoreManifest
 import com.github.redditvanced.common.models.CoreSettings
+import com.github.redditvanced.common.toJsonFile
 import com.reddit.frontpage.main.MainActivity
 import com.reddit.frontpage.ui.HomePagerScreen
 import dalvik.system.BaseDexClassLoader
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import top.canyie.pine.Pine
 import top.canyie.pine.PineConfig
 import top.canyie.pine.callback.MethodHook
@@ -28,6 +30,7 @@ import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
 object Injector {
+	private const val BASE_URL = "https://redditvanced.ddns.net/maven/releases/com/github/redditvanced/Core"
 	const val LOG_TAG = "Injector"
 	private val klaxon = Klaxon()
 
@@ -45,8 +48,8 @@ object Injector {
 	}
 
 	fun init(activity: MainActivity) {
-		PineConfig.debug = File(Constants.Paths.BASE, ".pine_debug").exists()
-		PineConfig.debuggable = File(Constants.Paths.BASE, ".debuggable").exists()
+		PineConfig.debug = File(Paths.BASE, ".pine_debug").exists()
+		PineConfig.debuggable = File(Paths.BASE, ".debuggable").exists()
 		PineConfig.disableHiddenApiPolicy = false
 		PineConfig.disableHiddenApiPolicyForPlatformDomain = false
 		Pine.disableJitInline()
@@ -70,25 +73,24 @@ object Injector {
 		if (!pruneArtProfile(activity))
 			Log.w(LOG_TAG, "Failed to prune ART profile!")
 
-		File(Constants.Paths.PLUGINS).mkdirs()
-		File(Constants.Paths.THEMES).mkdir()
-		File(Constants.Paths.CRASHLOGS).mkdir()
+		File(Paths.PLUGINS).mkdirs()
+		File(Paths.THEMES).mkdir()
+		File(Paths.CRASHLOGS).mkdir()
 
-		if (!CORE_SETTINGS.exists()) {
-			CORE_SETTINGS.createNewFile()
-			// TODO: remove useCustomCore=true
-			klaxon.toJsonFile(CoreSettings(useCustomCore = true), CORE_SETTINGS)
+		if (!Paths.CORE_SETTINGS.exists()) {
+			Paths.CORE_SETTINGS.createNewFile()
+			klaxon.toJsonFile(CoreSettings(), Paths.CORE_SETTINGS)
 		}
 
 		val cachedCoreFile = File(activity.codeCacheDir, "core.zip")
-		val coreSettings = requireNotNull(klaxon.parse<CoreSettings>(CORE_SETTINGS)) {
+		val coreSettings = requireNotNull(klaxon.parse<CoreSettings>(Paths.CORE_SETTINGS)) {
 			"Failed to parse core settings!"
 		}
 
 		try {
-			val coreFile = if (coreSettings.useCustomCore && CUSTOM_CORE.exists()) {
-				Log.d(LOG_TAG, "Loading custom core from ${CUSTOM_CORE.absolutePath}")
-				CUSTOM_CORE
+			val coreFile = if (coreSettings.useCustomCore && Paths.CUSTOM_CORE.exists()) {
+				Log.d(LOG_TAG, "Loading custom core from ${Paths.CUSTOM_CORE.absolutePath}")
+				Paths.CUSTOM_CORE
 			} else if (coreSettings.useCustomCore) {
 				Log.w(LOG_TAG, "Custom core missing, using default...")
 				cachedCoreFile
@@ -97,15 +99,25 @@ object Injector {
 			// Download default core to cache dir
 			if (!coreSettings.useCustomCore && !cachedCoreFile.exists()) {
 				Log.d(LOG_TAG, "Downloading core from github...")
-				val thread = Thread {
-					// TODO: download core
-				}
-				thread.start()
-				thread.join()
-				Log.d(LOG_TAG, "Finished downloading core from github...")
 
-				val clientVersion = FrontpageSettings.i.appVersionCode
-				Log.d(LOG_TAG, "Retrieved local Reddit version: $clientVersion")
+				var error: Throwable? = null
+				Thread { downloadCore(cachedCoreFile) }.apply {
+					setUncaughtExceptionHandler { _, t -> error = t }
+					start()
+					join()
+				}
+				if (error != null) {
+					errorToast("Failed to download core zip!", activity, error)
+					return
+				}
+
+				// TODO: remove this reflection once dex access changer is implemented
+				val fInstance = FrontpageSettings::class.java.getDeclaredField("i")
+					.apply { isAccessible = true }
+				val clientVersion = (fInstance.get(null) as FrontpageSettings).appVersionCode
+
+				// val clientVersion = FrontpageSettings.i.appVersionCode
+				Log.d(LOG_TAG, "Local Reddit version: $clientVersion")
 
 				val zip = ZipFile(coreFile)
 				val manifestStream = zip.getInputStream(zip.getEntry("manifest.json"))
@@ -115,7 +127,8 @@ object Injector {
 				Log.d(LOG_TAG, "Retrieved supported Reddit version: ${manifest.redditVersionCode}")
 
 				if (manifest.redditVersionCode > clientVersion) {
-					errorToast("Your base Reddit is outdated. Please reinstall using the Installer", activity, null)
+					errorToast("Your Reddit is outdated! Please reinstall RedditVanced with the manager.", activity, null)
+					return
 				}
 			}
 
@@ -175,6 +188,46 @@ object Injector {
 		return true
 	}
 
+	private fun downloadCore(output: File) {
+		val http = OkHttpClient()
+
+		val versionRequest = Request.Builder()
+			.url("$BASE_URL/maven-metadata.xml")
+			.header("User-Agent", "RedditVanced Injector")
+			.build()
+
+		val versionBody = http.newCall(versionRequest)
+			.execute()
+			.takeIf { it.code() == 200 }
+			?.body()
+			?.string()
+			?: throw Error("Failed to fetch core version!")
+
+		val version = "<release>(.+?)</release>"
+			.toRegex()
+			.find(versionBody)
+			?.groupValues
+			?.get(1)
+			?: throw Error("Failed to find version in maven-metadata!")
+
+		Log.i(LOG_TAG, "Fetched core version: $version")
+
+		val zipRequest = Request.Builder()
+			.url("$BASE_URL/$version/Core-$version.zip")
+			.header("User-Agent", "RedditVanced Injector")
+			.build()
+
+		val zipData = http.newCall(zipRequest)
+			.execute()
+			.takeIf { it.code() == 200 }
+			?.body()
+			?.bytes()
+			?: throw Error("Failed to fetch core zip!")
+
+		output.writeBytes(zipData)
+		Log.i(LOG_TAG, "Downloaded core zip!")
+	}
+
 	// TODO: api >30??
 	@SuppressLint("NewApi")
 	private fun requestPermissions(injectorActivity: MainActivity): Boolean {
@@ -205,14 +258,14 @@ object Injector {
 						val activity = frame.thisObject as Activity
 						onResumeUnpatch!!.unhook()
 
-						if (!Environment.isExternalStorageManager()) thread(true) {
-							errorToast("Manage storage permissions are required for RedditVanced to load!", activity)
-							Thread.sleep(4200)
-							errorToast("Please go into your settings and enable it.", activity)
-						} else {
+						if (Environment.isExternalStorageManager()) {
 							val intent = activity.packageManager.getLaunchIntentForPackage(activity.packageName)
 							activity.startActivity(Intent.makeRestartActivityTask(intent!!.component))
 							exitProcess(0)
+						} else thread(true) {
+							errorToast("Manage storage permissions are required for RedditVanced to load!", activity)
+							Thread.sleep(4200)
+							errorToast("Please go into your settings and enable it.", activity)
 						}
 					}
 				})

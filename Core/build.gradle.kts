@@ -12,6 +12,7 @@ version = "1.0.0"
 
 android {
 	compileSdk = 30
+	namespace = "com.github.redditvanced.core"
 
 	defaultConfig {
 		minSdk = 24
@@ -47,9 +48,9 @@ redditVanced {
 }
 
 dependencies {
-	api(project(":Common"))
-	api(files("../.assets/pine.jar"))
-
+	implementation(project(":Injector"))
+	implementation(project(":Common"))
+	implementation(files("../.assets/pine.jar"))
 	implementation("com.beust:klaxon:5.5")
 
 	val redditVersion: String by project
