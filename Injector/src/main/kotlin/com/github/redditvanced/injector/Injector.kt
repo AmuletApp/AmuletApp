@@ -1,13 +1,13 @@
 package com.github.redditvanced.injector
 
-import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.*
+import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
-import androidx.fragment.app.Fragment
 import com.beust.klaxon.Klaxon
 import com.github.redditvanced.common.*
 import com.github.redditvanced.common.Constants.PROJECT_NAME
@@ -16,12 +16,16 @@ import com.github.redditvanced.common.Constants.Paths.CUSTOM_CORE
 import com.github.redditvanced.common.models.CoreManifest
 import com.github.redditvanced.common.models.CoreSettings
 import com.reddit.frontpage.main.MainActivity
+import com.reddit.frontpage.ui.HomePagerScreen
 import dalvik.system.BaseDexClassLoader
 import top.canyie.pine.Pine
 import top.canyie.pine.PineConfig
 import top.canyie.pine.callback.MethodHook
-import java.io.*
+import java.io.File
+import java.io.FileOutputStream
 import java.util.zip.ZipFile
+import kotlin.concurrent.thread
+import kotlin.system.exitProcess
 
 object Injector {
 	const val LOG_TAG = "Injector"
@@ -48,6 +52,9 @@ object Injector {
 		Pine.disableJitInline()
 		Pine.disableProfileSaver()
 
+		if (!requestPermissions(activity))
+			return
+
 		// Pine's disableHiddenApiPolicy crashes according to Juby
 		HiddenAPIPolicy.disableHiddenApiPolicy()
 
@@ -55,13 +62,13 @@ object Injector {
 		try {
 			initCore(activity)
 		} catch (t: Throwable) {
-			Log.e(LOG_TAG, "Failed to initialize $PROJECT_NAME", t)
+			errorToast("Failed to initialize $PROJECT_NAME", activity, t)
 		}
 	}
 
 	private fun initCore(activity: MainActivity) {
 		if (!pruneArtProfile(activity))
-			Log.w(LOG_TAG, "Failed to prune art profile")
+			Log.w(LOG_TAG, "Failed to prune ART profile!")
 
 		File(Constants.Paths.PLUGINS).mkdirs()
 		File(Constants.Paths.THEMES).mkdir()
@@ -129,7 +136,7 @@ object Injector {
 		}
 	}
 
-	private fun errorToast(msg: String, activity: MainActivity, throwable: Throwable? = null) {
+	private fun errorToast(msg: String, activity: Activity, throwable: Throwable? = null) {
 		Log.e(LOG_TAG, msg, throwable)
 		Handler(Looper.getMainLooper()).post {
 			Toast.makeText(activity, msg, Toast.LENGTH_LONG).show()
@@ -168,38 +175,56 @@ object Injector {
 		return true
 	}
 
-	/**
-	 * Check and request write storage permissions
-	 * TODO: test if this works
-	 */
-	private fun checkPermissions(activity: MainActivity): Boolean {
-		val perm = Manifest.permission.WRITE_EXTERNAL_STORAGE
+	// TODO: api >30??
+	@SuppressLint("NewApi")
+	private fun requestPermissions(injectorActivity: MainActivity): Boolean {
+		if (Environment.isExternalStorageManager())
+			return true
 
-		if (activity.checkSelfPermission(perm) == PackageManager.PERMISSION_GRANTED) return true
+		val mHomePage = HomePagerScreen::class.java.getDeclaredConstructor()
+		val mOnResume = Activity::class.java.getDeclaredMethod("onResume")
+		val mActivityCreate = Activity::class.java.getDeclaredMethod("onCreate", Bundle::class.java)
 
-		Pine.hook(
-			Fragment::class.java.getDeclaredMethod("onRequestPermissionsResult", Integer.TYPE, Array<String>::class.java, Integer.TYPE),
-			object : MethodHook() {
-				override fun beforeCall(callFrame: Pine.CallFrame) {
-					val requestCode = callFrame.args[0] as Int
-					val grantResults = callFrame.args[2] as Array<*>
+		// TODO: find way to get activity from HomePagerScreen
+		var appActivity: Activity? = null
+		val activityUnpatch = Pine.hook(mActivityCreate, object : MethodHook() {
+			override fun afterCall(frame: Pine.CallFrame) {
+				appActivity = frame.thisObject as Activity
+			}
+		})
 
-					if (requestCode == 45987) {
-						if (grantResults.isEmpty() || grantResults.contains(PackageManager.PERMISSION_DENIED))
-							Toast.makeText(activity, "You have to grant storage permissions to use $PROJECT_NAME", Toast.LENGTH_LONG).show()
-						else {
-							Log.i(LOG_TAG, "MANAGE_EXTERNAL_STORAGE granted, restarting $PROJECT_NAME")
-							val intent = Intent(activity, MainActivity::class.java)
-							intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-							activity.startActivity(intent)
-							Runtime.getRuntime().exit(0)
+		var homePageUnpatch: MethodHook.Unhook? = null
+		homePageUnpatch = Pine.hook(mHomePage, object : MethodHook() {
+			override fun afterCall(frame: Pine.CallFrame) {
+				homePageUnpatch!!.unhook()
+				activityUnpatch!!.unhook()
+
+				var onResumeUnpatch: MethodHook.Unhook? = null
+				onResumeUnpatch = Pine.hook(mOnResume, object : MethodHook() {
+					override fun afterCall(frame: Pine.CallFrame) {
+						val activity = frame.thisObject as Activity
+						onResumeUnpatch!!.unhook()
+
+						if (!Environment.isExternalStorageManager()) thread(true) {
+							errorToast("Manage storage permissions are required for RedditVanced to load!", activity)
+							Thread.sleep(4200)
+							errorToast("Please go into your settings and enable it.", activity)
+						} else {
+							val intent = activity.packageManager.getLaunchIntentForPackage(activity.packageName)
+							activity.startActivity(Intent.makeRestartActivityTask(intent!!.component))
+							exitProcess(0)
 						}
-						callFrame.result = null
 					}
-				}
-			})
+				})
 
-		activity.requestPermissions(arrayOf(perm), 45987)
+				val intent = Intent(
+					Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
+					Uri.parse("package:${injectorActivity.packageName}")
+				)
+				appActivity!!.startActivity(intent)
+				appActivity = null
+			}
+		})
 
 		return false
 	}

@@ -10,6 +10,7 @@ import com.github.redditvanced.core.util.*
 import com.reddit.frontpage.main.MainActivity
 import java.io.*
 import java.sql.Timestamp
+import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
 @Suppress("unused")
@@ -38,7 +39,7 @@ object Main {
 				return@setDefaultUncaughtExceptionHandler
 			}
 
-			kotlin.concurrent.thread {
+			thread {
 				Looper.prepare()
 
 				// Find the plugin that caused the crash (if any)
