@@ -16,7 +16,7 @@ public class MainActivity$a extends lG.a {
 	public MainActivity$a(MainActivity activity) {
 		if (!initialized) {
 			initialized = true;
-			Injector.INSTANCE.preInit(activity);
+			Injector.INSTANCE.preInit();
 		}
 	}
 

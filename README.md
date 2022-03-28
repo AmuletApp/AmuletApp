@@ -8,28 +8,30 @@ A <b>rootless</b> Reddit android app mod
 </p>
 
 # ⚠️ NOTE ⚠️
+
 This project is currently a Work-in-progress (WIP) and is not yet functional.\
 Please come back later.
 
 # Capabilities
+
 - Rootless!! RedditVanced uses [Pine](https://github.com/canyie/pine) to hook into methods at runtime.
 - Security: Every plugin change is reviewed before publishing an update
 - Plugin system (No rebuilding the app)
 - Custom app themes (WIP)
 
 # Limitations
-⚠️ Absolutely no free premium or free coins. Asking will earn you a free mute/block.
 
-CPU architectures: `arm` and `arm64`\
-This means `x86` and `x86_64` are unsupported, **no emulators**.
+⚠️ Free premium or coins do not exist
 
-Android versions: 7 (SDK 24) - 12L (SDK 32)
-
-Reddit version: v2022.2.0 (405543) (Installer will download automatically)
+- Android 7 (SDK 24) - 13 (SDK 33)
+- arm64, armeabi-v7, x86, x86_64 (Emulators are supported!)
+- Reddit v2022.2.0 (405543) (Installer will download automatically)
 
 # Credits/Licensing
-- [Pine](https://github.com/canyie/pine) - Dynamic java method hook framework on ART
-- [Aliucord](https://github.com/Aliucord/Aliucord) - Discord Android app mod
+
+- [LSPlant](https://github.com/LSPosed/LSPlant) - A hook framework for Android Runtime (ART)
+- [AliuHook](https://github.com/Aliucord/hook) - Java Xposed Api for LSPlant
+- [Aliuord](https://github.com/Aliucord/Aliucord) - Discord Android app mod
 
 Code heavily inspired by Aliucord, although almost entirely rewritten.\
 Used under the Open Software License v3

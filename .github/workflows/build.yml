@@ -24,12 +24,10 @@ jobs:
         uses: android-actions/setup-android@1685c3d8669829f192d94fcad89eba25ce558bb2
 
       - name: Build
+        env:
+          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
         run: |
           cd $GITHUB_WORKSPACE/repository
           chmod +x gradlew
           ./gradlew publish
-        env:
-          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
-
-      # TODO: push injector + core builds somewhere

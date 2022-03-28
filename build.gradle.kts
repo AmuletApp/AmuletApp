@@ -17,6 +17,7 @@ allprojects {
 		google()
 		mavenCentral()
 		maven("https://redditvanced.ddns.net/maven/releases")
+		maven("https://maven.aliucord.com/snapshots")
 		maven("https://jitpack.io")
 	}
 }

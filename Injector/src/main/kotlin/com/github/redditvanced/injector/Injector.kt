@@ -18,11 +18,11 @@ import com.github.redditvanced.common.toJsonFile
 import com.reddit.frontpage.main.MainActivity
 import com.reddit.frontpage.ui.HomePagerScreen
 import dalvik.system.BaseDexClassLoader
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XC_MethodHook.Unhook
+import de.robv.android.xposed.XposedBridge
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import top.canyie.pine.Pine
-import top.canyie.pine.PineConfig
-import top.canyie.pine.callback.MethodHook
 import java.io.File
 import java.io.FileOutputStream
 import java.util.zip.ZipFile
@@ -31,37 +31,32 @@ import kotlin.system.exitProcess
 
 object Injector {
 	private const val BASE_URL = "https://redditvanced.ddns.net/maven/releases/com/github/redditvanced/Core"
-	const val LOG_TAG = "Injector"
+	private const val TAG = "Injector"
 	private val klaxon = Klaxon()
 
-	fun preInit(activity: MainActivity) {
-		var hook: MethodHook.Unhook? = null
-		hook = Pine.hook(
-			activity::class.java.getDeclaredMethod("onCreate", Bundle::class.java),
-			object : MethodHook() {
-				override fun beforeCall(callFrame: Pine.CallFrame) {
-					init(callFrame.thisObject as MainActivity)
-					hook?.unhook()
-					hook = null
-				}
-			})
+	fun preInit() {
+		val mOnCreate = MainActivity::class.java.getDeclaredMethod("onCreate", Bundle::class.java)
+		var unhook: Unhook? = null
+		unhook = XposedBridge.hookMethod(mOnCreate, object : XC_MethodHook() {
+			override fun beforeHookedMethod(frame: MethodHookParam) {
+				init(frame.thisObject as MainActivity)
+				unhook!!.unhook()
+				unhook = null
+			}
+		})
 	}
 
 	fun init(activity: MainActivity) {
-		PineConfig.debug = File(Paths.BASE, ".pine_debug").exists()
-		PineConfig.debuggable = File(Paths.BASE, ".debuggable").exists()
-		PineConfig.disableHiddenApiPolicy = false
-		PineConfig.disableHiddenApiPolicyForPlatformDomain = false
-		Pine.disableJitInline()
-		Pine.disableProfileSaver()
+		if (!XposedBridge.disableProfileSaver())
+			Log.e(TAG, "Failed to disable profile saver")
+
+		if (!XposedBridge.disableHiddenApiRestrictions())
+			Log.e(TAG, "Failed to disable hidden api restrictions")
 
 		if (!requestPermissions(activity))
 			return
 
-		// Pine's disableHiddenApiPolicy crashes according to Juby
-		HiddenAPIPolicy.disableHiddenApiPolicy()
-
-		Log.i(LOG_TAG, "Initializing $PROJECT_NAME...")
+		Log.i(TAG, "Initializing $PROJECT_NAME...")
 		try {
 			initCore(activity)
 		} catch (t: Throwable) {
@@ -71,7 +66,7 @@ object Injector {
 
 	private fun initCore(activity: MainActivity) {
 		if (!pruneArtProfile(activity))
-			Log.w(LOG_TAG, "Failed to prune ART profile!")
+			Log.w(TAG, "Failed to prune ART profile!")
 
 		File(Paths.PLUGINS).mkdirs()
 		File(Paths.THEMES).mkdir()
@@ -89,16 +84,16 @@ object Injector {
 
 		try {
 			val coreFile = if (coreSettings.useCustomCore && Paths.CUSTOM_CORE.exists()) {
-				Log.d(LOG_TAG, "Loading custom core from ${Paths.CUSTOM_CORE.absolutePath}")
+				Log.d(TAG, "Loading custom core from ${Paths.CUSTOM_CORE.absolutePath}")
 				Paths.CUSTOM_CORE
 			} else if (coreSettings.useCustomCore) {
-				Log.w(LOG_TAG, "Custom core missing, using default...")
+				Log.w(TAG, "Custom core missing, using default...")
 				cachedCoreFile
 			} else cachedCoreFile
 
 			// Download default core to cache dir
 			if (!coreSettings.useCustomCore && !cachedCoreFile.exists()) {
-				Log.d(LOG_TAG, "Downloading core from github...")
+				Log.d(TAG, "Downloading core from github...")
 
 				var error: Throwable? = null
 				Thread { downloadCore(cachedCoreFile) }.apply {
@@ -117,14 +112,14 @@ object Injector {
 				val clientVersion = (fInstance.get(null) as FrontpageSettings).appVersionCode
 
 				// val clientVersion = FrontpageSettings.i.appVersionCode
-				Log.d(LOG_TAG, "Local Reddit version: $clientVersion")
+				Log.d(TAG, "Local Reddit version: $clientVersion")
 
 				val zip = ZipFile(coreFile)
 				val manifestStream = zip.getInputStream(zip.getEntry("manifest.json"))
 				val manifest = klaxon.parse<CoreManifest>(manifestStream)
 					?: throw IllegalStateException("Failed to parse core manifest")
 				zip.close()
-				Log.d(LOG_TAG, "Retrieved supported Reddit version: ${manifest.redditVersionCode}")
+				Log.d(TAG, "Retrieved supported Reddit version: ${manifest.redditVersionCode}")
 
 				if (manifest.redditVersionCode > clientVersion) {
 					errorToast("Your Reddit is outdated! Please reinstall RedditVanced with the manager.", activity, null)
@@ -132,15 +127,15 @@ object Injector {
 				}
 			}
 
-			Log.d(LOG_TAG, "Adding core to the classpath...")
+			Log.d(TAG, "Adding core to the classpath...")
 			addDexToClasspath(coreFile, activity.classLoader)
-			Log.d(LOG_TAG, "Successfully added core to the classpath.")
+			Log.d(TAG, "Successfully added core to the classpath.")
 
 			val c = Class.forName("com.github.redditvanced.core.Main")
 			val init = c.getDeclaredMethod("init", MainActivity::class.java)
-			Log.d(LOG_TAG, "Invoking main core entry point...")
+			Log.d(TAG, "Invoking main core entry point...")
 			init.invoke(null, activity)
-			Log.d(LOG_TAG, "Finished initializing core.")
+			Log.d(TAG, "Finished initializing core.")
 		} catch (t: Throwable) {
 			// Delete file so it is reinstalled the next time
 			if (!coreSettings.useCustomCore)
@@ -150,7 +145,7 @@ object Injector {
 	}
 
 	private fun errorToast(msg: String, activity: Activity, throwable: Throwable? = null) {
-		Log.e(LOG_TAG, msg, throwable)
+		Log.e(TAG, msg, throwable)
 		Handler(Looper.getMainLooper()).post {
 			Toast.makeText(activity, msg, Toast.LENGTH_LONG).show()
 		}
@@ -172,7 +167,7 @@ object Injector {
 	 * https://source.android.com/devices/tech/dalvik/configure#how_art_works
 	 */
 	private fun pruneArtProfile(activity: MainActivity): Boolean {
-		Log.d(LOG_TAG, "Pruning ART usage profile...")
+		Log.d(TAG, "Pruning ART usage profile...")
 		val profile = File("/data/misc/profiles/cur/0/" + activity.packageName + "/primary.prof")
 		if (!profile.exists()) {
 			return false
@@ -210,7 +205,7 @@ object Injector {
 			?.get(1)
 			?: throw Error("Failed to find version in maven-metadata!")
 
-		Log.i(LOG_TAG, "Fetched core version: $version")
+		Log.i(TAG, "Fetched core version: $version")
 
 		val zipRequest = Request.Builder()
 			.url("$BASE_URL/$version/Core-$version.zip")
@@ -225,7 +220,7 @@ object Injector {
 			?: throw Error("Failed to fetch core zip!")
 
 		output.writeBytes(zipData)
-		Log.i(LOG_TAG, "Downloaded core zip!")
+		Log.i(TAG, "Downloaded core zip!")
 	}
 
 	// TODO: api >30??
@@ -238,23 +233,23 @@ object Injector {
 		val mOnResume = Activity::class.java.getDeclaredMethod("onResume")
 		val mActivityCreate = Activity::class.java.getDeclaredMethod("onCreate", Bundle::class.java)
 
-		// TODO: find way to get activity from HomePagerScreen
+		// TODO: find way to get activity from HomePagerScreen w/o this
 		var appActivity: Activity? = null
-		val activityUnpatch = Pine.hook(mActivityCreate, object : MethodHook() {
-			override fun afterCall(frame: Pine.CallFrame) {
+		val activityUnpatch = XposedBridge.hookMethod(mActivityCreate, object : XC_MethodHook() {
+			override fun afterHookedMethod(frame: MethodHookParam) {
 				appActivity = frame.thisObject as Activity
 			}
 		})
 
-		var homePageUnpatch: MethodHook.Unhook? = null
-		homePageUnpatch = Pine.hook(mHomePage, object : MethodHook() {
-			override fun afterCall(frame: Pine.CallFrame) {
+		var homePageUnpatch: Unhook? = null
+		homePageUnpatch = XposedBridge.hookMethod(mHomePage, object : XC_MethodHook() {
+			override fun afterHookedMethod(frame: MethodHookParam) {
 				homePageUnpatch!!.unhook()
 				activityUnpatch!!.unhook()
 
-				var onResumeUnpatch: MethodHook.Unhook? = null
-				onResumeUnpatch = Pine.hook(mOnResume, object : MethodHook() {
-					override fun afterCall(frame: Pine.CallFrame) {
+				var onResumeUnpatch: Unhook? = null
+				onResumeUnpatch = XposedBridge.hookMethod(mOnResume, object : XC_MethodHook() {
+					override fun afterHookedMethod(frame: MethodHookParam) {
 						val activity = frame.thisObject as Activity
 						onResumeUnpatch!!.unhook()
 

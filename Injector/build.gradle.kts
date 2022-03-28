@@ -15,7 +15,7 @@ android {
 	compileSdk = 30
 
 	defaultConfig {
-		minSdk = 24
+		minSdk = 23
 		targetSdk = 30
 	}
 
@@ -56,8 +56,7 @@ dependencies {
 
 	implementation(project(":Common"))
 	implementation("com.beust:klaxon:5.5")
-//	implementation("com.github.Aliucord:pine:83f67b2cdb")
-	implementation(files("../.assets/pine.jar"))
+	implementation("com.aliucord:Aliuhook:main-SNAPSHOT@aar")
 }
 
 task<Jar>("sourcesJar") {

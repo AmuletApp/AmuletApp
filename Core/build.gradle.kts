@@ -15,7 +15,7 @@ android {
 	namespace = "com.github.redditvanced.core"
 
 	defaultConfig {
-		minSdk = 24
+		minSdk = 23
 		targetSdk = 30
 	}
 
@@ -50,8 +50,8 @@ redditVanced {
 dependencies {
 	implementation(project(":Injector"))
 	implementation(project(":Common"))
-	implementation(files("../.assets/pine.jar"))
 	implementation("com.beust:klaxon:5.5")
+	implementation("com.aliucord:Aliuhook:main-SNAPSHOT")
 
 	val redditVersion: String by project
 	redditApk("::$redditVersion")
