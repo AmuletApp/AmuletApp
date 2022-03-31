@@ -1,12 +1,12 @@
 package com.github.redditvanced.core.util
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.*
 import android.widget.Toast
-import com.github.redditvanced.common.BaseActivity
 import com.github.redditvanced.core.patcher.Patcher
 import java.util.*
 import java.util.concurrent.ExecutorService
@@ -22,16 +22,19 @@ object Utils {
 	val mainThread = Handler(Looper.getMainLooper())
 
 	/**
-	 * ThreadPool. Please use this for asynchronous Tasks instead of creating Threads manually
-	 * as spinning up new Threads everytime is heavy on the CPU
+	 * ThreadPool. Use this for asynchronous Tasks instead of creating Threads manually
+	 * as spinning up new Threads is expensive
 	 */
 	val threadPool = Executors.newCachedThreadPool() as ExecutorService
 
 	/**
 	 * The current Android activity
 	 */
-	lateinit var appActivity: BaseActivity
+	lateinit var appActivity: Activity
 
+	/**
+	 * The current activity's context
+	 */
 	lateinit var appContext: Context
 
 	/**
@@ -84,10 +87,13 @@ object Utils {
 	/**
 	 * Initialize internal patches
 	 */
-	fun init(patcher: Patcher) {
-		patcher.before<BaseActivity>("onCreate", Bundle::class.java) {
-			appActivity = this
+	fun init(patcher: Patcher, currentActivity: Activity) {
+		appActivity = currentActivity
+		appContext = currentActivity.applicationContext
+
+		patcher.before<Activity>("onCreate", Bundle::class.java) {
 			appContext = this.applicationContext
+			appActivity = this
 		}
 	}
 }

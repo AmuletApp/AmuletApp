@@ -29,8 +29,7 @@ object Main {
 		if (initialized) return
 		initialized = true
 
-		Utils.appActivity = activity
-		Utils.init(patcher)
+		Utils.init(patcher, activity)
 
 		// Handle crashes
 		Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
