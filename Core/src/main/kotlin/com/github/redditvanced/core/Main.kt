@@ -63,8 +63,8 @@ object Main {
 				}
 
 				// Write crashlog to disk
-				val crashlogName = Timestamp(System.currentTimeMillis()).toString().replace(":".toRegex(), "_") + ".txt"
-				val file = File(Constants.Paths.CRASHLOGS, crashlogName)
+				val timestamp = Timestamp(System.currentTimeMillis()).toString().replace(":", "_")
+				val file = File(Constants.Paths.CRASHLOGS, "$timestamp.txt")
 				PrintStream(file).use { ps -> throwable.printStackTrace(ps) }
 
 				// Show error toast to user

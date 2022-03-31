@@ -96,6 +96,7 @@ object Injector {
 				Log.d(TAG, "Downloading core from github...")
 
 				var error: Throwable? = null
+				cachedCoreFile.exists() || cachedCoreFile.createNewFile()
 				Thread { downloadCore(cachedCoreFile) }.apply {
 					setUncaughtExceptionHandler { _, t -> error = t }
 					start()
