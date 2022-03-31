@@ -1,6 +1,7 @@
 package com.github.redditvanced.core.coreplugins
 
 import com.github.redditvanced.common.models.PluginManifest
+import com.github.redditvanced.common.models.PluginManifest.Author
 import com.github.redditvanced.core.entities.Plugin
 
 object CorePlugins {
@@ -20,7 +21,7 @@ open class CorePlugin(name: String, description: String) : Plugin(
 	PluginManifest(
 		name,
 		description,
-		listOf(PluginManifest.Author("Aliucord", null, null)),
+		listOf(Author("Amulet", null, null)),
 		loadResources = false,
 		requiresRestart = false,
 		pluginClass = "",
