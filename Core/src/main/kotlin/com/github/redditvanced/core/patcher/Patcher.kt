@@ -7,7 +7,11 @@ import java.lang.reflect.Member
 
 private typealias HookCallback<T> = T.(XC_MethodHook.MethodHookParam) -> Unit
 private typealias InsteadHookCallback<T> = T.(XC_MethodHook.MethodHookParam) -> Any?
-private typealias Unpatch = () -> Unit
+
+/**
+ * A function created by the [Patcher] to disable the patch.
+ */
+typealias Unpatch = () -> Unit
 
 @Suppress("unused")
 class Patcher(

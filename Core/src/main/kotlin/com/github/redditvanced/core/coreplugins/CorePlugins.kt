@@ -2,6 +2,7 @@ package com.github.redditvanced.core.coreplugins
 
 import com.github.redditvanced.common.models.PluginManifest
 import com.github.redditvanced.common.models.PluginManifest.Author
+import com.github.redditvanced.core.coreplugins.layout.Layout
 import com.github.redditvanced.core.entities.Plugin
 
 internal object CorePlugins {
@@ -10,6 +11,7 @@ internal object CorePlugins {
 	 */
 	val plugins = listOf(
 		NoAds(),
+		Layout(),
 		DebugPage(),
 	)
 }
@@ -17,13 +19,13 @@ internal object CorePlugins {
 /**
  * Alias to separate core plugins from regular plugins
  */
-open class CorePlugin(name: String, description: String) : Plugin(
+open class CorePlugin(name: String, description: String, requiresRestart: Boolean = false) : Plugin(
 	PluginManifest(
 		name,
 		description,
 		listOf(Author("Amulet", null, null)),
 		loadResources = false,
-		requiresRestart = false,
+		requiresRestart = requiresRestart,
 		pluginClass = "",
 		changelog = "",
 		version = ""
