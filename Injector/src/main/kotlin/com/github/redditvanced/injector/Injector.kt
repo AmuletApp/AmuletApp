@@ -33,6 +33,9 @@ object Injector {
 	private const val BASE_URL = "https://redditvanced.ddns.net/maven/releases/com/github/redditvanced/Core"
 	private const val TAG = "Injector"
 	private val klaxon = Klaxon()
+	private val mainClass by lazy {
+		Class.forName("com.github.redditvanced.core.Main")
+	}
 
 	fun preInit() {
 		val mOnCreate = MainActivity::class.java.getDeclaredMethod("onCreate", Bundle::class.java)
@@ -40,6 +43,12 @@ object Injector {
 		unhook = XposedBridge.hookMethod(mOnCreate, object : XC_MethodHook() {
 			override fun beforeHookedMethod(frame: MethodHookParam) {
 				init(frame.thisObject as MainActivity)
+			}
+
+			override fun afterHookedMethod(frame: MethodHookParam) {
+				val mAfterCreate = mainClass.getDeclaredMethod("afterOnCreate")
+				mAfterCreate.invoke(null)
+
 				unhook!!.unhook()
 				unhook = null
 			}
@@ -132,8 +141,7 @@ object Injector {
 			addDexToClasspath(coreFile, activity.classLoader)
 			Log.d(TAG, "Successfully added core to the classpath.")
 
-			val c = Class.forName("com.github.redditvanced.core.Main")
-			val init = c.getDeclaredMethod("init", MainActivity::class.java)
+			val init = mainClass.getDeclaredMethod("beforeOnCreate", MainActivity::class.java)
 			Log.d(TAG, "Invoking main core entry point...")
 			init.invoke(null, activity)
 			Log.d(TAG, "Finished initializing core.")

@@ -18,17 +18,13 @@ internal object Main {
 	private val logger = Logger("Core")
 	private val patcher = Patcher(logger)
 	lateinit var settings: CoreSettings
-	private var initialized = false
 
 	/**
-	 * Init hook called by the Injector
+	 * Endpoint called by Injector before [MainActivity.onCreate]
 	 */
 	@JvmStatic
 	@Suppress("unused")
-	fun init(activity: MainActivity) {
-		if (initialized) return
-		initialized = true
-
+	fun beforeOnCreate(activity: MainActivity) {
 		Utils.init(patcher, activity)
 
 		// Handle crashes
@@ -84,7 +80,16 @@ internal object Main {
 		// TODO: somehow save settings when changing the settings properties
 		settings = Klaxon().parse<CoreSettings>(Constants.Paths.CORE_SETTINGS)
 			?: CoreSettings()
+
 		PluginManager.loadAllPlugins()
+	}
+
+	/**
+	 * Endpoint called by Injector after [MainActivity.onCreate]
+	 */
+	@JvmStatic
+	@Suppress("unused")
+	fun afterOnCreate() {
 		PluginManager.startAllPlugins()
 	}
 }
