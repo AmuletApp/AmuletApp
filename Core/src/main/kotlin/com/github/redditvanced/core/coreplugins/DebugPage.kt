@@ -19,16 +19,17 @@ import com.reddit.frontpage.main.MainActivity
 internal class DebugPage : CorePlugin("DebugPage", "Open the debug Reddit page from the home sidebar.") {
 	override fun onStart() {
 		// FIXME: avoid delays
-		Utils.threadPool.execute {
-			Thread.sleep(2000)
-			Utils.mainThread.post { patchLayout(Utils.appActivity) }
-		}
+		// FIXME: not shown after switching activities
+		Utils.mainThread.postDelayed(
+			{ patchLayout(Utils.appActivity) },
+			2000
+		)
 
 		patcher.after<MainActivity>("onResume") {
-			Utils.threadPool.execute {
-				Thread.sleep(200)
-				Utils.mainThread.post { patchLayout(this) }
-			}
+			Utils.mainThread.postDelayed(
+				{ patchLayout(this) },
+				700
+			)
 		}
 	}
 
