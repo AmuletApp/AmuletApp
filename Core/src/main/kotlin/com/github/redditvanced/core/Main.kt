@@ -14,7 +14,7 @@ import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
 @Suppress("unused")
-object Main {
+internal object Main {
 	private val logger = Logger("Core")
 	private val patcher = Patcher(logger)
 	lateinit var settings: CoreSettings

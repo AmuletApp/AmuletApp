@@ -4,7 +4,7 @@ import com.github.redditvanced.common.models.PluginManifest
 import com.github.redditvanced.common.models.PluginManifest.Author
 import com.github.redditvanced.core.entities.Plugin
 
-object CorePlugins {
+internal object CorePlugins {
 	/**
 	 * All unsorted core plugins.
 	 */

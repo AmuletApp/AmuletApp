@@ -7,7 +7,7 @@ import com.reddit.domain.model.ILink
 import com.reddit.domain.model.listing.Listing
 import com.reddit.frontpage.presentation.detail.CommentScreenAdView
 
-class NoAds : CorePlugin("NoAds", "Remove advertisements and promoted posts from your feed.") {
+internal class NoAds : CorePlugin("NoAds", "Remove advertisements and promoted posts from your feed.") {
 	override fun onStart() {
 		val cString = String::class.java
 
