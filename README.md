@@ -14,7 +14,7 @@ Please come back later.
 
 # Capabilities
 
-- Rootless!! RedditVanced uses [Pine](https://github.com/canyie/pine) to hook into methods at runtime.
+- Rootless!! RedditVanced uses [LSPlant](https://github.com/LSPosed/LSPlant) to hook into methods at runtime.
 - Security: Every plugin change is reviewed before publishing an update
 - Plugin system (No rebuilding the app)
 - Custom app themes (WIP)
