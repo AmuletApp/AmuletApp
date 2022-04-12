@@ -1,6 +1,6 @@
 <h1 align="center">RedditVanced</h1>
 <p align="center">
-A rootless <b>modified</b> reddit app for android
+A <b>modified</b> reddit app for android
 </p>
 <p align="center">
   <img alt="Github README views" src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FRedditVanced%2FRedditVanced&count_bg=%2379C83D&title_bg=%23555555&icon=github.svg&icon_color=%23E7E7E7&title=views&edge_flat=true"/>
