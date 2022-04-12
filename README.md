@@ -1,6 +1,6 @@
 <h1 align="center">RedditVanced</h1>
 <p align="center">
-A <b>rootless</b> Reddit android app mod
+A <b>modified</b> reddit app for android
 </p>
 <p align="center">
   <img alt="Github README views" src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FRedditVanced%2FRedditVanced&count_bg=%2379C83D&title_bg=%23555555&icon=github.svg&icon_color=%23E7E7E7&title=views&edge_flat=true"/>
@@ -14,7 +14,7 @@ Please come back later.
 
 # Capabilities
 
-- Rootless!! RedditVanced uses [Pine](https://github.com/canyie/pine) to hook into methods at runtime.
+- Rootless!! RedditVanced uses [LSPlant](https://github.com/LSPosed/LSPlant) to hook into methods at runtime.
 - Security: Every plugin change is reviewed before publishing an update
 - Plugin system (No rebuilding the app)
 - Custom app themes (WIP)
