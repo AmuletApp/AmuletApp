@@ -31,7 +31,7 @@ Please come back later.
 
 - [LSPlant](https://github.com/LSPosed/LSPlant) - A hook framework for Android Runtime (ART)
 - [AliuHook](https://github.com/Aliucord/hook) - Java Xposed Api for LSPlant
-- [Aliuord](https://github.com/Aliucord/Aliucord) - Discord Android app mod
+- [Aliucord](https://github.com/Aliucord/Aliucord) - Discord Android app mod
 
 Code heavily inspired by Aliucord, although almost entirely rewritten.\
 Used under the Open Software License v3
